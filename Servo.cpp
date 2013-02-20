@@ -215,4 +215,5 @@ public:
 	//->Multiple class instances cannot be allowed.
 	static bool m_InstanceExists;
 };
+
 bool Servo::m_InstanceExists = false;
