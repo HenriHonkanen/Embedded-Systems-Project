@@ -205,11 +205,11 @@ public:
 	unsigned long m_PulseLengthUS;
 	
 	//Constants
-	const static long PULSE_INTERVAL_US = 20000;				//US
-	const static long MIN_PULSE_US = 750;						//US
-	const static long MAX_PULSE_US = 2250;						//US
-	const static long MIN_TARGET_VALUE = -85;					//Degrees
-	const static long MAX_TARGET_VALUE = 85;					//Degrees
+	const static long PULSE_INTERVAL_US = 20000;	//US
+	const static long MIN_PULSE_US = 750;		//US
+	const static long MAX_PULSE_US = 2250;		//US
+	const static long MIN_TARGET_VALUE = -85;	//Degrees
+	const static long MAX_TARGET_VALUE = 85;	//Degrees
 	
 	//Instance checker, this class uses dedicated HW timers that cannot be shared.
 	//->Multiple class instances cannot be allowed.
