@@ -121,7 +121,7 @@ int main()
     for (;;)
     {
         if (PINA < 0xff) {
-            ENABLE_COMPARE_OUTPUT_MODE(4);
+            git p(4);
             //on = true;
             //if (!(PINA & _BV(PA0))) {
             if (counter == -1 && !(PINA & _BV(PA7))) {
