@@ -1,0 +1,219 @@
+   1               		.file	"util.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  79               	.global	map
+  81               	map:
+  82               		.stabd	46,0,0
+   1:util.c        **** #include "util.h"
+   2:util.c        **** 
+   3:util.c        **** long map(long v, long a, long b, long x,long y) {
+  84               	.LM0:
+  85               	.LFBB1:
+  86 0000 2F92      		push r2
+  87 0002 3F92      		push r3
+  88 0004 4F92      		push r4
+  89 0006 5F92      		push r5
+  90 0008 6F92      		push r6
+  91 000a 7F92      		push r7
+  92 000c 8F92      		push r8
+  93 000e 9F92      		push r9
+  94 0010 AF92      		push r10
+  95 0012 BF92      		push r11
+  96 0014 CF92      		push r12
+  97 0016 DF92      		push r13
+  98 0018 EF92      		push r14
+  99 001a FF92      		push r15
+ 100 001c 0F93      		push r16
+ 101 001e 1F93      		push r17
+ 102 0020 DF93      		push r29
+ 103 0022 CF93      		push r28
+ 104 0024 CDB7      		in r28,__SP_L__
+ 105 0026 DEB7      		in r29,__SP_H__
+ 106 0028 2C97      		sbiw r28,12
+ 107 002a 0FB6      		in __tmp_reg__,__SREG__
+ 108 002c F894      		cli
+ 109 002e DEBF      		out __SP_H__,r29
+ 110 0030 0FBE      		out __SREG__,__tmp_reg__
+ 111 0032 CDBF      		out __SP_L__,r28
+ 112               	/* prologue: function */
+ 113               	/* frame size = 12 */
+ 114               	/* stack size = 30 */
+ 115               	.L__stack_usage = 30
+ 116 0034 1B01      		movw r2,r22
+ 117 0036 2C01      		movw r4,r24
+ 118 0038 3901      		movw r6,r18
+ 119 003a 4A01      		movw r8,r20
+ 120 003c 2AA1      		ldd r18,Y+34
+ 121 003e 3BA1      		ldd r19,Y+35
+ 122 0040 4CA1      		ldd r20,Y+36
+ 123 0042 5DA1      		ldd r21,Y+37
+   4:util.c        ****   if(v<=a) {
+ 125               	.LM1:
+ 126 0044 6616      		cp r6,r22
+ 127 0046 7706      		cpc r7,r23
+ 128 0048 8806      		cpc r8,r24
+ 129 004a 9906      		cpc r9,r25
+ 130 004c 04F0      		brlt .+2
+ 131 004e 00C0      		rjmp .L2
+   5:util.c        **** 		return x;
+   6:util.c        **** 	}
+   7:util.c        **** 	if(v>=b) {
+ 133               	.LM2:
+ 134 0050 6E15      		cp r22,r14
+ 135 0052 7F05      		cpc r23,r15
+ 136 0054 8007      		cpc r24,r16
+ 137 0056 9107      		cpc r25,r17
+ 138 0058 04F0      		brlt .+2
+ 139 005a 00C0      		rjmp .L3
+   8:util.c        **** 		return y;
+   9:util.c        **** 	}
+  10:util.c        **** 	
+  11:util.c        **** 	long l_ab = (b-a);	
+  12:util.c        **** 	long l_xy = (y-x);
+  13:util.c        **** 	
+  14:util.c        **** 	long t = v-a;
+  15:util.c        **** 
+  16:util.c        **** 	float r = (float)t / (float)l_ab;
+  17:util.c        **** 	
+  18:util.c        **** 	return x + (l_xy*r);
+ 141               	.LM3:
+ 142 005c C601      		movw r24,r12
+ 143 005e B501      		movw r22,r10
+ 144 0060 2987      		std Y+9,r18
+ 145 0062 3A87      		std Y+10,r19
+ 146 0064 4B87      		std Y+11,r20
+ 147 0066 5C87      		std Y+12,r21
+ 148 0068 0E94 0000 		call __floatsisf
+ 149 006c 6983      		std Y+1,r22
+ 150 006e 7A83      		std Y+2,r23
+ 151 0070 8B83      		std Y+3,r24
+ 152 0072 9C83      		std Y+4,r25
+  12:util.c        **** 	long l_xy = (y-x);
+ 154               	.LM4:
+ 155 0074 2985      		ldd r18,Y+9
+ 156 0076 3A85      		ldd r19,Y+10
+ 157 0078 4B85      		ldd r20,Y+11
+ 158 007a 5C85      		ldd r21,Y+12
+ 159 007c CA01      		movw r24,r20
+ 160 007e B901      		movw r22,r18
+ 161 0080 6A19      		sub r22,r10
+ 162 0082 7B09      		sbc r23,r11
+ 163 0084 8C09      		sbc r24,r12
+ 164 0086 9D09      		sbc r25,r13
+ 166               	.LM5:
+ 167 0088 0E94 0000 		call __floatsisf
+ 168 008c 6D83      		std Y+5,r22
+ 169 008e 7E83      		std Y+6,r23
+ 170 0090 8F83      		std Y+7,r24
+ 171 0092 9887      		std Y+8,r25
+  14:util.c        **** 	long t = v-a;
+ 173               	.LM6:
+ 174 0094 C201      		movw r24,r4
+ 175 0096 B101      		movw r22,r2
+ 176 0098 6619      		sub r22,r6
+ 177 009a 7709      		sbc r23,r7
+ 178 009c 8809      		sbc r24,r8
+ 179 009e 9909      		sbc r25,r9
+  16:util.c        **** 	float r = (float)t / (float)l_ab;
+ 181               	.LM7:
+ 182 00a0 0E94 0000 		call __floatsisf
+ 183 00a4 5B01      		movw r10,r22
+ 184 00a6 6C01      		movw r12,r24
+  11:util.c        **** 	long l_ab = (b-a);	
+ 186               	.LM8:
+ 187 00a8 C801      		movw r24,r16
+ 188 00aa B701      		movw r22,r14
+ 189 00ac 6619      		sub r22,r6
+ 190 00ae 7709      		sbc r23,r7
+ 191 00b0 8809      		sbc r24,r8
+ 192 00b2 9909      		sbc r25,r9
+  16:util.c        **** 	float r = (float)t / (float)l_ab;
+ 194               	.LM9:
+ 195 00b4 0E94 0000 		call __floatsisf
+ 196 00b8 9B01      		movw r18,r22
+ 197 00ba AC01      		movw r20,r24
+ 198 00bc C601      		movw r24,r12
+ 199 00be B501      		movw r22,r10
+ 200 00c0 0E94 0000 		call __divsf3
+ 201 00c4 9B01      		movw r18,r22
+ 202 00c6 AC01      		movw r20,r24
+ 204               	.LM10:
+ 205 00c8 6D81      		ldd r22,Y+5
+ 206 00ca 7E81      		ldd r23,Y+6
+ 207 00cc 8F81      		ldd r24,Y+7
+ 208 00ce 9885      		ldd r25,Y+8
+ 209 00d0 0E94 0000 		call __mulsf3
+ 210 00d4 9B01      		movw r18,r22
+ 211 00d6 AC01      		movw r20,r24
+ 212 00d8 6981      		ldd r22,Y+1
+ 213 00da 7A81      		ldd r23,Y+2
+ 214 00dc 8B81      		ldd r24,Y+3
+ 215 00de 9C81      		ldd r25,Y+4
+ 216 00e0 0E94 0000 		call __addsf3
+ 217 00e4 0E94 0000 		call __fixsfsi
+ 218 00e8 A62E      		mov r10,r22
+ 219 00ea B72E      		mov r11,r23
+ 220 00ec C82E      		mov r12,r24
+ 221 00ee D92E      		mov r13,r25
+ 222 00f0 00C0      		rjmp .L2
+ 223               	.L3:
+   8:util.c        **** 		return y;
+ 225               	.LM11:
+ 226 00f2 5901      		movw r10,r18
+ 227 00f4 6A01      		movw r12,r20
+ 228               	.L2:
+  19:util.c        **** }
+ 230               	.LM12:
+ 231 00f6 B501      		movw r22,r10
+ 232 00f8 C601      		movw r24,r12
+ 233               	/* epilogue start */
+ 234 00fa 2C96      		adiw r28,12
+ 235 00fc 0FB6      		in __tmp_reg__,__SREG__
+ 236 00fe F894      		cli
+ 237 0100 DEBF      		out __SP_H__,r29
+ 238 0102 0FBE      		out __SREG__,__tmp_reg__
+ 239 0104 CDBF      		out __SP_L__,r28
+ 240 0106 CF91      		pop r28
+ 241 0108 DF91      		pop r29
+ 242 010a 1F91      		pop r17
+ 243 010c 0F91      		pop r16
+ 244 010e FF90      		pop r15
+ 245 0110 EF90      		pop r14
+ 246 0112 DF90      		pop r13
+ 247 0114 CF90      		pop r12
+ 248 0116 BF90      		pop r11
+ 249 0118 AF90      		pop r10
+ 250 011a 9F90      		pop r9
+ 251 011c 8F90      		pop r8
+ 252 011e 7F90      		pop r7
+ 253 0120 6F90      		pop r6
+ 254 0122 5F90      		pop r5
+ 255 0124 4F90      		pop r4
+ 256 0126 3F90      		pop r3
+ 257 0128 2F90      		pop r2
+ 258 012a 0895      		ret
+ 261               	.Lscope1:
+ 263               		.stabd	78,0,0
+ 265               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 util.c
+     /tmp/ccPYt0Sc.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccPYt0Sc.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccPYt0Sc.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccPYt0Sc.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccPYt0Sc.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccPYt0Sc.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccPYt0Sc.s:81     .text:0000000000000000 map
+
+UNDEFINED SYMBOLS
+__floatsisf
+__divsf3
+__mulsf3
+__addsf3
+__fixsfsi

@@ -142,9 +142,9 @@ float GetFilteredSensorValue(void) {
 	else if (sensors[7])
 		value = -1.0;
 	else if (sensors[1])
-		value = 0.7;
+		value = 0.8;
 	else if (sensors[6])
-		value = -0.7;
+		value = -0.8;
 	else if (sensors[2])
 		value = 0.35;
 	else if (sensors[5])

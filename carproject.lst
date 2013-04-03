@@ -1,0 +1,1352 @@
+   1               		.file	"carproject.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  72               	.global	__vector_6
+  74               	__vector_6:
+  75               		.stabd	46,0,0
+   1:carproject.c  **** #include <avr/io.h>
+   2:carproject.c  **** #include <avr/interrupt.h>
+   3:carproject.c  **** #include <stdbool.h>
+   4:carproject.c  **** #include "servo.h"
+   5:carproject.c  **** #include "motor.h"
+   6:carproject.c  **** #include "util.h"
+   7:carproject.c  **** 
+   8:carproject.c  **** #define ENABLE_EXTERNAL_INTERRUPT(bit) SET_BIT(EIMSK, bit)
+   9:carproject.c  **** #define DISABLE_EXTERNAL_INTERRUPT(bit) CLEAR_BIT(EIMSK, bit)
+  10:carproject.c  **** 
+  11:carproject.c  **** #define SETUP_SENSOR_IO()\
+  12:carproject.c  ****     DDRA = INPUT;\
+  13:carproject.c  ****     DDRD = OUTPUT\
+  14:carproject.c  **** 
+  15:carproject.c  **** #define CENTER 5
+  16:carproject.c  **** #define SMALL 15
+  17:carproject.c  **** #define MEDIUM 30
+  18:carproject.c  **** #define LARGE 45
+  19:carproject.c  **** 
+  20:carproject.c  **** bool driveFlag = false;
+  21:carproject.c  **** 
+  22:carproject.c  **** ISR(INT5_vect) {
+  77               	.LM0:
+  78               	.LFBB1:
+  79 0000 1F92      		push __zero_reg__
+  80 0002 0F92      		push r0
+  81 0004 0FB6      		in r0,__SREG__
+  82 0006 0F92      		push r0
+  83 0008 1124      		clr __zero_reg__
+  84 000a 8F93      		push r24
+  85               	/* prologue: Signal */
+  86               	/* frame size = 0 */
+  87               	/* stack size = 4 */
+  88               	.L__stack_usage = 4
+  23:carproject.c  **** 	driveFlag = true;
+  90               	.LM1:
+  91 000c 81E0      		ldi r24,lo8(1)
+  92 000e 8093 0000 		sts driveFlag,r24
+  93               	/* epilogue start */
+  24:carproject.c  **** }
+  95               	.LM2:
+  96 0012 8F91      		pop r24
+  97 0014 0F90      		pop r0
+  98 0016 0FBE      		out __SREG__,r0
+  99 0018 0F90      		pop r0
+ 100 001a 1F90      		pop __zero_reg__
+ 101 001c 1895      		reti
+ 103               	.Lscope1:
+ 105               		.stabd	78,0,0
+ 109               	.global	ShiftTowards
+ 111               	ShiftTowards:
+ 112               		.stabd	46,0,0
+  25:carproject.c  **** 
+  26:carproject.c  **** float ShiftTowards( float target , float direction , float speed ) {
+ 114               	.LM3:
+ 115               	.LFBB2:
+ 116 001e 2F92      		push r2
+ 117 0020 3F92      		push r3
+ 118 0022 4F92      		push r4
+ 119 0024 5F92      		push r5
+ 120 0026 6F92      		push r6
+ 121 0028 7F92      		push r7
+ 122 002a 8F92      		push r8
+ 123 002c 9F92      		push r9
+ 124 002e AF92      		push r10
+ 125 0030 BF92      		push r11
+ 126 0032 CF92      		push r12
+ 127 0034 DF92      		push r13
+ 128 0036 EF92      		push r14
+ 129 0038 FF92      		push r15
+ 130 003a 0F93      		push r16
+ 131 003c 1F93      		push r17
+ 132               	/* prologue: function */
+ 133               	/* frame size = 0 */
+ 134               	/* stack size = 16 */
+ 135               	.L__stack_usage = 16
+ 136 003e 962E      		mov r9,r22
+ 137 0040 872E      		mov r8,r23
+ 138 0042 782E      		mov r7,r24
+ 139 0044 692E      		mov r6,r25
+ 140 0046 5901      		movw r10,r18
+ 141 0048 6A01      		movw r12,r20
+  27:carproject.c  **** 
+  28:carproject.c  **** 	if((target-direction) > speed || (target-direction) < -speed ) {
+ 143               	.LM4:
+ 144 004a A401      		movw r20,r8
+ 145 004c 9301      		movw r18,r6
+ 146 004e 652F      		mov r22,r21
+ 147 0050 742F      		mov r23,r20
+ 148 0052 832F      		mov r24,r19
+ 149 0054 922F      		mov r25,r18
+ 150 0056 A601      		movw r20,r12
+ 151 0058 9501      		movw r18,r10
+ 152 005a 0E94 0000 		call __subsf3
+ 153 005e 562E      		mov r5,r22
+ 154 0060 472E      		mov r4,r23
+ 155 0062 382E      		mov r3,r24
+ 156 0064 292E      		mov r2,r25
+ 157 0066 A201      		movw r20,r4
+ 158 0068 9101      		movw r18,r2
+ 159 006a 652F      		mov r22,r21
+ 160 006c 742F      		mov r23,r20
+ 161 006e 832F      		mov r24,r19
+ 162 0070 922F      		mov r25,r18
+ 163 0072 A801      		movw r20,r16
+ 164 0074 9701      		movw r18,r14
+ 165 0076 0E94 0000 		call __gtsf2
+ 166 007a 1816      		cp __zero_reg__,r24
+ 167 007c 04F0      		brlt .L3
+ 169               	.LM5:
+ 170 007e A801      		movw r20,r16
+ 171 0080 9701      		movw r18,r14
+ 172 0082 5058      		subi r21,0x80
+ 173 0084 D201      		movw r26,r4
+ 174 0086 F101      		movw r30,r2
+ 175 0088 6B2F      		mov r22,r27
+ 176 008a 7A2F      		mov r23,r26
+ 177 008c 8F2F      		mov r24,r31
+ 178 008e 9E2F      		mov r25,r30
+ 179 0090 0E94 0000 		call __ltsf2
+ 180 0094 87FF      		sbrs r24,7
+ 181 0096 00C0      		rjmp .L4
+ 182               	.L3:
+  29:carproject.c  **** 
+  30:carproject.c  **** 		if(direction < target) {
+ 184               	.LM6:
+ 185 0098 C601      		movw r24,r12
+ 186 009a B501      		movw r22,r10
+ 187 009c D401      		movw r26,r8
+ 188 009e F301      		movw r30,r6
+ 189 00a0 2B2F      		mov r18,r27
+ 190 00a2 382D      		mov r19,r8
+ 191 00a4 4F2F      		mov r20,r31
+ 192 00a6 562D      		mov r21,r6
+ 193 00a8 0E94 0000 		call __ltsf2
+ 194 00ac 87FF      		sbrs r24,7
+ 195 00ae 00C0      		rjmp .L11
+  31:carproject.c  **** 			return direction+speed;
+ 197               	.LM7:
+ 198 00b0 C601      		movw r24,r12
+ 199 00b2 B501      		movw r22,r10
+ 200 00b4 A801      		movw r20,r16
+ 201 00b6 9701      		movw r18,r14
+ 202 00b8 0E94 0000 		call __addsf3
+ 203 00bc 00C0      		rjmp .L12
+ 204               	.L11:
+  32:carproject.c  **** 		}
+  33:carproject.c  **** 		else if (direction > target) {
+ 206               	.LM8:
+ 207 00be C601      		movw r24,r12
+ 208 00c0 B501      		movw r22,r10
+ 209 00c2 D401      		movw r26,r8
+ 210 00c4 F301      		movw r30,r6
+ 211 00c6 2B2F      		mov r18,r27
+ 212 00c8 382D      		mov r19,r8
+ 213 00ca 4F2F      		mov r20,r31
+ 214 00cc 562D      		mov r21,r6
+ 215 00ce 0E94 0000 		call __gtsf2
+ 216 00d2 1816      		cp __zero_reg__,r24
+ 217 00d4 04F4      		brge .L4
+  34:carproject.c  **** 			return direction-speed;
+ 219               	.LM9:
+ 220 00d6 C601      		movw r24,r12
+ 221 00d8 B501      		movw r22,r10
+ 222 00da A801      		movw r20,r16
+ 223 00dc 9701      		movw r18,r14
+ 224 00de 0E94 0000 		call __subsf3
+ 225               	.L12:
+ 226 00e2 962E      		mov r9,r22
+ 227 00e4 872E      		mov r8,r23
+ 228 00e6 782E      		mov r7,r24
+ 229 00e8 692E      		mov r6,r25
+ 230               	.L4:
+  35:carproject.c  **** 		}
+  36:carproject.c  **** 	}
+  37:carproject.c  **** 	return target;
+  38:carproject.c  **** }
+ 232               	.LM10:
+ 233 00ea A401      		movw r20,r8
+ 234 00ec 9301      		movw r18,r6
+ 235 00ee 652F      		mov r22,r21
+ 236 00f0 782D      		mov r23,r8
+ 237 00f2 832F      		mov r24,r19
+ 238 00f4 962D      		mov r25,r6
+ 239               	/* epilogue start */
+ 240 00f6 1F91      		pop r17
+ 241 00f8 0F91      		pop r16
+ 242 00fa FF90      		pop r15
+ 243 00fc EF90      		pop r14
+ 244 00fe DF90      		pop r13
+ 245 0100 CF90      		pop r12
+ 246 0102 BF90      		pop r11
+ 247 0104 AF90      		pop r10
+ 248 0106 9F90      		pop r9
+ 249 0108 8F90      		pop r8
+ 250 010a 7F90      		pop r7
+ 251 010c 6F90      		pop r6
+ 252 010e 5F90      		pop r5
+ 253 0110 4F90      		pop r4
+ 254 0112 3F90      		pop r3
+ 255 0114 2F90      		pop r2
+ 256 0116 0895      		ret
+ 258               	.Lscope2:
+ 260               		.stabd	78,0,0
+ 262               	.global	UpdateSensors
+ 264               	UpdateSensors:
+ 265               		.stabd	46,0,0
+  39:carproject.c  **** 
+  40:carproject.c  **** 
+  41:carproject.c  **** float sensors[8];
+  42:carproject.c  **** float lastTarget = 0;
+  43:carproject.c  **** float sensorTarget[8] = {LARGE, MEDIUM, SMALL, CENTER, -CENTER, -SMALL, -MEDIUM, -LARGE};
+  44:carproject.c  **** float lapFlag = false;
+  45:carproject.c  **** int lapCounter = 0;
+  46:carproject.c  **** 
+  47:carproject.c  **** void UpdateSensors(void) {
+ 267               	.LM11:
+ 268               	.LFBB3:
+ 269 0118 EF92      		push r14
+ 270 011a FF92      		push r15
+ 271 011c 0F93      		push r16
+ 272 011e 1F93      		push r17
+ 273 0120 CF93      		push r28
+ 274 0122 DF93      		push r29
+ 275               	/* prologue: function */
+ 276               	/* frame size = 0 */
+ 277               	/* stack size = 6 */
+ 278               	.L__stack_usage = 6
+  48:carproject.c  **** 
+  49:carproject.c  **** 	if (PINA < 0xff) {
+ 280               	.LM12:
+ 281 0124 80B1      		in r24,32-32
+ 282 0126 8F3F      		cpi r24,lo8(-1)
+ 283 0128 01F4      		brne .+2
+ 284 012a 00C0      		rjmp .L14
+  50:carproject.c  **** 
+  51:carproject.c  **** 			if (!(PINA & _BV(PA7))) {
+ 286               	.LM13:
+ 287 012c 0799      		sbic 32-32,7
+ 288 012e 00C0      		rjmp .L15
+  52:carproject.c  **** 				sensors[0]+=1.0f;
+ 290               	.LM14:
+ 291 0130 6091 0000 		lds r22,sensors
+ 292 0134 7091 0000 		lds r23,sensors+1
+ 293 0138 8091 0000 		lds r24,sensors+2
+ 294 013c 9091 0000 		lds r25,sensors+3
+ 295 0140 20E0      		ldi r18,lo8(0x3f800000)
+ 296 0142 30E0      		ldi r19,hi8(0x3f800000)
+ 297 0144 40E8      		ldi r20,hlo8(0x3f800000)
+ 298 0146 5FE3      		ldi r21,hhi8(0x3f800000)
+ 299 0148 0E94 0000 		call __addsf3
+ 300 014c 00C0      		rjmp .L39
+ 301               	.L15:
+  53:carproject.c  **** 			}
+  54:carproject.c  **** 			else {
+  55:carproject.c  **** 				sensors[0]-=1.0f;
+ 303               	.LM15:
+ 304 014e 6091 0000 		lds r22,sensors
+ 305 0152 7091 0000 		lds r23,sensors+1
+ 306 0156 8091 0000 		lds r24,sensors+2
+ 307 015a 9091 0000 		lds r25,sensors+3
+ 308 015e 20E0      		ldi r18,lo8(0x3f800000)
+ 309 0160 30E0      		ldi r19,hi8(0x3f800000)
+ 310 0162 40E8      		ldi r20,hlo8(0x3f800000)
+ 311 0164 5FE3      		ldi r21,hhi8(0x3f800000)
+ 312 0166 0E94 0000 		call __subsf3
+ 313               	.L39:
+ 314 016a 6093 0000 		sts sensors,r22
+ 315 016e 7093 0000 		sts sensors+1,r23
+ 316 0172 8093 0000 		sts sensors+2,r24
+ 317 0176 9093 0000 		sts sensors+3,r25
+  56:carproject.c  **** 			}
+  57:carproject.c  **** 
+  58:carproject.c  **** 			if (!(PINA & _BV(PA6))) { 
+ 319               	.LM16:
+ 320 017a 0699      		sbic 32-32,6
+ 321 017c 00C0      		rjmp .L17
+  59:carproject.c  **** 				sensors[1]+=1.0f;
+ 323               	.LM17:
+ 324 017e 6091 0000 		lds r22,sensors+4
+ 325 0182 7091 0000 		lds r23,sensors+4+1
+ 326 0186 8091 0000 		lds r24,sensors+4+2
+ 327 018a 9091 0000 		lds r25,sensors+4+3
+ 328 018e 20E0      		ldi r18,lo8(0x3f800000)
+ 329 0190 30E0      		ldi r19,hi8(0x3f800000)
+ 330 0192 40E8      		ldi r20,hlo8(0x3f800000)
+ 331 0194 5FE3      		ldi r21,hhi8(0x3f800000)
+ 332 0196 0E94 0000 		call __addsf3
+ 333 019a 00C0      		rjmp .L40
+ 334               	.L17:
+  60:carproject.c  **** 			}
+  61:carproject.c  **** 			else {
+  62:carproject.c  **** 				sensors[1]-=1.0f;
+ 336               	.LM18:
+ 337 019c 6091 0000 		lds r22,sensors+4
+ 338 01a0 7091 0000 		lds r23,sensors+4+1
+ 339 01a4 8091 0000 		lds r24,sensors+4+2
+ 340 01a8 9091 0000 		lds r25,sensors+4+3
+ 341 01ac 20E0      		ldi r18,lo8(0x3f800000)
+ 342 01ae 30E0      		ldi r19,hi8(0x3f800000)
+ 343 01b0 40E8      		ldi r20,hlo8(0x3f800000)
+ 344 01b2 5FE3      		ldi r21,hhi8(0x3f800000)
+ 345 01b4 0E94 0000 		call __subsf3
+ 346               	.L40:
+ 347 01b8 6093 0000 		sts sensors+4,r22
+ 348 01bc 7093 0000 		sts sensors+4+1,r23
+ 349 01c0 8093 0000 		sts sensors+4+2,r24
+ 350 01c4 9093 0000 		sts sensors+4+3,r25
+  63:carproject.c  **** 			}
+  64:carproject.c  **** 
+  65:carproject.c  **** 			if (!(PINA & _BV(PA5))) { 
+ 352               	.LM19:
+ 353 01c8 0599      		sbic 32-32,5
+ 354 01ca 00C0      		rjmp .L19
+  66:carproject.c  **** 				sensors[2]+=1.0f;
+ 356               	.LM20:
+ 357 01cc 6091 0000 		lds r22,sensors+8
+ 358 01d0 7091 0000 		lds r23,sensors+8+1
+ 359 01d4 8091 0000 		lds r24,sensors+8+2
+ 360 01d8 9091 0000 		lds r25,sensors+8+3
+ 361 01dc 20E0      		ldi r18,lo8(0x3f800000)
+ 362 01de 30E0      		ldi r19,hi8(0x3f800000)
+ 363 01e0 40E8      		ldi r20,hlo8(0x3f800000)
+ 364 01e2 5FE3      		ldi r21,hhi8(0x3f800000)
+ 365 01e4 0E94 0000 		call __addsf3
+ 366 01e8 00C0      		rjmp .L41
+ 367               	.L19:
+  67:carproject.c  **** 			}
+  68:carproject.c  **** 			else {
+  69:carproject.c  **** 				sensors[2]-=1.0f;
+ 369               	.LM21:
+ 370 01ea 6091 0000 		lds r22,sensors+8
+ 371 01ee 7091 0000 		lds r23,sensors+8+1
+ 372 01f2 8091 0000 		lds r24,sensors+8+2
+ 373 01f6 9091 0000 		lds r25,sensors+8+3
+ 374 01fa 20E0      		ldi r18,lo8(0x3f800000)
+ 375 01fc 30E0      		ldi r19,hi8(0x3f800000)
+ 376 01fe 40E8      		ldi r20,hlo8(0x3f800000)
+ 377 0200 5FE3      		ldi r21,hhi8(0x3f800000)
+ 378 0202 0E94 0000 		call __subsf3
+ 379               	.L41:
+ 380 0206 6093 0000 		sts sensors+8,r22
+ 381 020a 7093 0000 		sts sensors+8+1,r23
+ 382 020e 8093 0000 		sts sensors+8+2,r24
+ 383 0212 9093 0000 		sts sensors+8+3,r25
+  70:carproject.c  **** 			}
+  71:carproject.c  **** 
+  72:carproject.c  **** 			if (!(PINA & _BV(PA4))) {
+ 385               	.LM22:
+ 386 0216 0499      		sbic 32-32,4
+ 387 0218 00C0      		rjmp .L21
+  73:carproject.c  **** 				sensors[3]+=1.0f;
+ 389               	.LM23:
+ 390 021a 6091 0000 		lds r22,sensors+12
+ 391 021e 7091 0000 		lds r23,sensors+12+1
+ 392 0222 8091 0000 		lds r24,sensors+12+2
+ 393 0226 9091 0000 		lds r25,sensors+12+3
+ 394 022a 20E0      		ldi r18,lo8(0x3f800000)
+ 395 022c 30E0      		ldi r19,hi8(0x3f800000)
+ 396 022e 40E8      		ldi r20,hlo8(0x3f800000)
+ 397 0230 5FE3      		ldi r21,hhi8(0x3f800000)
+ 398 0232 0E94 0000 		call __addsf3
+ 399 0236 00C0      		rjmp .L42
+ 400               	.L21:
+  74:carproject.c  **** 			}
+  75:carproject.c  **** 			else {
+  76:carproject.c  **** 				sensors[3]-=1.0f;
+ 402               	.LM24:
+ 403 0238 6091 0000 		lds r22,sensors+12
+ 404 023c 7091 0000 		lds r23,sensors+12+1
+ 405 0240 8091 0000 		lds r24,sensors+12+2
+ 406 0244 9091 0000 		lds r25,sensors+12+3
+ 407 0248 20E0      		ldi r18,lo8(0x3f800000)
+ 408 024a 30E0      		ldi r19,hi8(0x3f800000)
+ 409 024c 40E8      		ldi r20,hlo8(0x3f800000)
+ 410 024e 5FE3      		ldi r21,hhi8(0x3f800000)
+ 411 0250 0E94 0000 		call __subsf3
+ 412               	.L42:
+ 413 0254 6093 0000 		sts sensors+12,r22
+ 414 0258 7093 0000 		sts sensors+12+1,r23
+ 415 025c 8093 0000 		sts sensors+12+2,r24
+ 416 0260 9093 0000 		sts sensors+12+3,r25
+  77:carproject.c  **** 			}
+  78:carproject.c  **** 
+  79:carproject.c  **** 			if (!(PINA & _BV(PA3))) { 
+ 418               	.LM25:
+ 419 0264 0399      		sbic 32-32,3
+ 420 0266 00C0      		rjmp .L23
+  80:carproject.c  **** 				sensors[4]+=1.0f;
+ 422               	.LM26:
+ 423 0268 6091 0000 		lds r22,sensors+16
+ 424 026c 7091 0000 		lds r23,sensors+16+1
+ 425 0270 8091 0000 		lds r24,sensors+16+2
+ 426 0274 9091 0000 		lds r25,sensors+16+3
+ 427 0278 20E0      		ldi r18,lo8(0x3f800000)
+ 428 027a 30E0      		ldi r19,hi8(0x3f800000)
+ 429 027c 40E8      		ldi r20,hlo8(0x3f800000)
+ 430 027e 5FE3      		ldi r21,hhi8(0x3f800000)
+ 431 0280 0E94 0000 		call __addsf3
+ 432 0284 00C0      		rjmp .L43
+ 433               	.L23:
+  81:carproject.c  **** 			}
+  82:carproject.c  **** 			else {
+  83:carproject.c  **** 				sensors[4]-=1.0f;
+ 435               	.LM27:
+ 436 0286 6091 0000 		lds r22,sensors+16
+ 437 028a 7091 0000 		lds r23,sensors+16+1
+ 438 028e 8091 0000 		lds r24,sensors+16+2
+ 439 0292 9091 0000 		lds r25,sensors+16+3
+ 440 0296 20E0      		ldi r18,lo8(0x3f800000)
+ 441 0298 30E0      		ldi r19,hi8(0x3f800000)
+ 442 029a 40E8      		ldi r20,hlo8(0x3f800000)
+ 443 029c 5FE3      		ldi r21,hhi8(0x3f800000)
+ 444 029e 0E94 0000 		call __subsf3
+ 445               	.L43:
+ 446 02a2 6093 0000 		sts sensors+16,r22
+ 447 02a6 7093 0000 		sts sensors+16+1,r23
+ 448 02aa 8093 0000 		sts sensors+16+2,r24
+ 449 02ae 9093 0000 		sts sensors+16+3,r25
+  84:carproject.c  **** 			}
+  85:carproject.c  **** 
+  86:carproject.c  **** 			if (!(PINA & _BV(PA2))) {
+ 451               	.LM28:
+ 452 02b2 0299      		sbic 32-32,2
+ 453 02b4 00C0      		rjmp .L25
+  87:carproject.c  **** 				sensors[5]+=1.0f;
+ 455               	.LM29:
+ 456 02b6 6091 0000 		lds r22,sensors+20
+ 457 02ba 7091 0000 		lds r23,sensors+20+1
+ 458 02be 8091 0000 		lds r24,sensors+20+2
+ 459 02c2 9091 0000 		lds r25,sensors+20+3
+ 460 02c6 20E0      		ldi r18,lo8(0x3f800000)
+ 461 02c8 30E0      		ldi r19,hi8(0x3f800000)
+ 462 02ca 40E8      		ldi r20,hlo8(0x3f800000)
+ 463 02cc 5FE3      		ldi r21,hhi8(0x3f800000)
+ 464 02ce 0E94 0000 		call __addsf3
+ 465 02d2 00C0      		rjmp .L44
+ 466               	.L25:
+  88:carproject.c  **** 			}
+  89:carproject.c  **** 			else {
+  90:carproject.c  **** 				sensors[5]-=1.0f;
+ 468               	.LM30:
+ 469 02d4 6091 0000 		lds r22,sensors+20
+ 470 02d8 7091 0000 		lds r23,sensors+20+1
+ 471 02dc 8091 0000 		lds r24,sensors+20+2
+ 472 02e0 9091 0000 		lds r25,sensors+20+3
+ 473 02e4 20E0      		ldi r18,lo8(0x3f800000)
+ 474 02e6 30E0      		ldi r19,hi8(0x3f800000)
+ 475 02e8 40E8      		ldi r20,hlo8(0x3f800000)
+ 476 02ea 5FE3      		ldi r21,hhi8(0x3f800000)
+ 477 02ec 0E94 0000 		call __subsf3
+ 478               	.L44:
+ 479 02f0 6093 0000 		sts sensors+20,r22
+ 480 02f4 7093 0000 		sts sensors+20+1,r23
+ 481 02f8 8093 0000 		sts sensors+20+2,r24
+ 482 02fc 9093 0000 		sts sensors+20+3,r25
+  91:carproject.c  **** 			}
+  92:carproject.c  **** 
+  93:carproject.c  **** 			if (!(PINA & _BV(PA1))) { 
+ 484               	.LM31:
+ 485 0300 0199      		sbic 32-32,1
+ 486 0302 00C0      		rjmp .L27
+  94:carproject.c  **** 				sensors[6]+=1.0f;
+ 488               	.LM32:
+ 489 0304 6091 0000 		lds r22,sensors+24
+ 490 0308 7091 0000 		lds r23,sensors+24+1
+ 491 030c 8091 0000 		lds r24,sensors+24+2
+ 492 0310 9091 0000 		lds r25,sensors+24+3
+ 493 0314 20E0      		ldi r18,lo8(0x3f800000)
+ 494 0316 30E0      		ldi r19,hi8(0x3f800000)
+ 495 0318 40E8      		ldi r20,hlo8(0x3f800000)
+ 496 031a 5FE3      		ldi r21,hhi8(0x3f800000)
+ 497 031c 0E94 0000 		call __addsf3
+ 498 0320 00C0      		rjmp .L45
+ 499               	.L27:
+  95:carproject.c  **** 			}
+  96:carproject.c  **** 			else {
+  97:carproject.c  **** 				sensors[6]-=1.0f;
+ 501               	.LM33:
+ 502 0322 6091 0000 		lds r22,sensors+24
+ 503 0326 7091 0000 		lds r23,sensors+24+1
+ 504 032a 8091 0000 		lds r24,sensors+24+2
+ 505 032e 9091 0000 		lds r25,sensors+24+3
+ 506 0332 20E0      		ldi r18,lo8(0x3f800000)
+ 507 0334 30E0      		ldi r19,hi8(0x3f800000)
+ 508 0336 40E8      		ldi r20,hlo8(0x3f800000)
+ 509 0338 5FE3      		ldi r21,hhi8(0x3f800000)
+ 510 033a 0E94 0000 		call __subsf3
+ 511               	.L45:
+ 512 033e 6093 0000 		sts sensors+24,r22
+ 513 0342 7093 0000 		sts sensors+24+1,r23
+ 514 0346 8093 0000 		sts sensors+24+2,r24
+ 515 034a 9093 0000 		sts sensors+24+3,r25
+  98:carproject.c  **** 			}
+  99:carproject.c  **** 
+ 100:carproject.c  **** 			if (!(PINA & _BV(PA0))) { 
+ 517               	.LM34:
+ 518 034e 0099      		sbic 32-32,0
+ 519 0350 00C0      		rjmp .L29
+ 101:carproject.c  **** 				sensors[7]+=1.0f;
+ 521               	.LM35:
+ 522 0352 6091 0000 		lds r22,sensors+28
+ 523 0356 7091 0000 		lds r23,sensors+28+1
+ 524 035a 8091 0000 		lds r24,sensors+28+2
+ 525 035e 9091 0000 		lds r25,sensors+28+3
+ 526 0362 20E0      		ldi r18,lo8(0x3f800000)
+ 527 0364 30E0      		ldi r19,hi8(0x3f800000)
+ 528 0366 40E8      		ldi r20,hlo8(0x3f800000)
+ 529 0368 5FE3      		ldi r21,hhi8(0x3f800000)
+ 530 036a 0E94 0000 		call __addsf3
+ 531               	.L46:
+ 532 036e 6093 0000 		sts sensors+28,r22
+ 533 0372 7093 0000 		sts sensors+28+1,r23
+ 534 0376 8093 0000 		sts sensors+28+2,r24
+ 535 037a 9093 0000 		sts sensors+28+3,r25
+ 536               	.L14:
+ 538               	.LM36:
+ 539 037e C0E0      		ldi r28,lo8(sensors)
+ 540 0380 D0E0      		ldi r29,hi8(sensors)
+ 541 0382 00C0      		rjmp .L30
+ 542               	.L29:
+ 102:carproject.c  **** 			}
+ 103:carproject.c  **** 			else {
+ 104:carproject.c  **** 				sensors[7]-=1.0f;
+ 544               	.LM37:
+ 545 0384 6091 0000 		lds r22,sensors+28
+ 546 0388 7091 0000 		lds r23,sensors+28+1
+ 547 038c 8091 0000 		lds r24,sensors+28+2
+ 548 0390 9091 0000 		lds r25,sensors+28+3
+ 549 0394 20E0      		ldi r18,lo8(0x3f800000)
+ 550 0396 30E0      		ldi r19,hi8(0x3f800000)
+ 551 0398 40E8      		ldi r20,hlo8(0x3f800000)
+ 552 039a 5FE3      		ldi r21,hhi8(0x3f800000)
+ 553 039c 0E94 0000 		call __subsf3
+ 554 03a0 00C0      		rjmp .L46
+ 555               	.L30:
+ 105:carproject.c  **** 			}
+ 106:carproject.c  **** 
+ 107:carproject.c  **** 		}
+ 108:carproject.c  **** 
+ 109:carproject.c  **** 		int i = 0;
+ 110:carproject.c  **** 		for(;i<8; i++) {
+ 111:carproject.c  **** 			if(sensors[i] > 1.0f) {
+ 557               	.LM38:
+ 558 03a2 E880      		ld r14,Y
+ 559 03a4 F980      		ldd r15,Y+1
+ 560 03a6 0A81      		ldd r16,Y+2
+ 561 03a8 1B81      		ldd r17,Y+3
+ 562 03aa C801      		movw r24,r16
+ 563 03ac B701      		movw r22,r14
+ 564 03ae 20E0      		ldi r18,lo8(0x3f800000)
+ 565 03b0 30E0      		ldi r19,hi8(0x3f800000)
+ 566 03b2 40E8      		ldi r20,hlo8(0x3f800000)
+ 567 03b4 5FE3      		ldi r21,hhi8(0x3f800000)
+ 568 03b6 0E94 0000 		call __gtsf2
+ 569 03ba 1816      		cp __zero_reg__,r24
+ 570 03bc 04F4      		brge .L38
+ 112:carproject.c  **** 				sensors[i] = 1.0f;
+ 572               	.LM39:
+ 573 03be 80E0      		ldi r24,lo8(0x3f800000)
+ 574 03c0 90E0      		ldi r25,hi8(0x3f800000)
+ 575 03c2 A0E8      		ldi r26,hlo8(0x3f800000)
+ 576 03c4 BFE3      		ldi r27,hhi8(0x3f800000)
+ 577 03c6 00C0      		rjmp .L47
+ 578               	.L38:
+ 113:carproject.c  **** 			}
+ 114:carproject.c  **** 			else if(sensors[i] < 0.0f) {
+ 580               	.LM40:
+ 581 03c8 C801      		movw r24,r16
+ 582 03ca B701      		movw r22,r14
+ 583 03cc 20E0      		ldi r18,lo8(0x0)
+ 584 03ce 30E0      		ldi r19,hi8(0x0)
+ 585 03d0 A901      		movw r20,r18
+ 586 03d2 0E94 0000 		call __ltsf2
+ 587 03d6 87FF      		sbrs r24,7
+ 588 03d8 00C0      		rjmp .L33
+ 115:carproject.c  **** 				sensors[i] = 0.0f;
+ 590               	.LM41:
+ 591 03da 80E0      		ldi r24,lo8(0x0)
+ 592 03dc 90E0      		ldi r25,hi8(0x0)
+ 593 03de DC01      		movw r26,r24
+ 594               	.L47:
+ 595 03e0 8883      		st Y,r24
+ 596 03e2 9983      		std Y+1,r25
+ 597 03e4 AA83      		std Y+2,r26
+ 598 03e6 BB83      		std Y+3,r27
+ 599               	.L33:
+ 600 03e8 2496      		adiw r28,4
+ 110:carproject.c  **** 		for(;i<8; i++) {
+ 602               	.LM42:
+ 603 03ea 80E0      		ldi r24,hi8(sensors+32)
+ 604 03ec C030      		cpi r28,lo8(sensors+32)
+ 605 03ee D807      		cpc r29,r24
+ 606 03f0 01F4      		brne .L30
+ 607               	/* epilogue start */
+ 116:carproject.c  **** 			}
+ 117:carproject.c  **** 		}
+ 118:carproject.c  **** 
+ 119:carproject.c  **** 
+ 120:carproject.c  **** }
+ 609               	.LM43:
+ 610 03f2 DF91      		pop r29
+ 611 03f4 CF91      		pop r28
+ 612 03f6 1F91      		pop r17
+ 613 03f8 0F91      		pop r16
+ 614 03fa FF90      		pop r15
+ 615 03fc EF90      		pop r14
+ 616 03fe 0895      		ret
+ 618               	.Lscope3:
+ 620               		.stabd	78,0,0
+ 622               	.global	GetFilteredSensorValue
+ 624               	GetFilteredSensorValue:
+ 625               		.stabd	46,0,0
+ 121:carproject.c  **** 
+ 122:carproject.c  **** float GetFilteredSensorValue(void) {
+ 627               	.LM44:
+ 628               	.LFBB4:
+ 629 0400 0F93      		push r16
+ 630 0402 1F93      		push r17
+ 631 0404 CF93      		push r28
+ 632 0406 DF93      		push r29
+ 633               	/* prologue: function */
+ 634               	/* frame size = 0 */
+ 635               	/* stack size = 4 */
+ 636               	.L__stack_usage = 4
+ 123:carproject.c  **** 	UpdateSensors();
+ 638               	.LM45:
+ 639 0408 0E94 0000 		call UpdateSensors
+ 640 040c C0E0      		ldi r28,lo8(sensors)
+ 641 040e D0E0      		ldi r29,hi8(sensors)
+ 124:carproject.c  **** 	int counter = 0;
+ 643               	.LM46:
+ 644 0410 00E0      		ldi r16,lo8(0)
+ 645 0412 10E0      		ldi r17,hi8(0)
+ 646               	.L51:
+ 125:carproject.c  **** 	static float previous = 0.0;
+ 126:carproject.c  **** 	float value= 0.0f;
+ 127:carproject.c  **** 	int i;
+ 128:carproject.c  **** 	for (i = 0; i < 8; i++) {
+ 129:carproject.c  **** 		if (sensors[i] == 1.0)
+ 648               	.LM47:
+ 649 0414 6991      		ld r22,Y+
+ 650 0416 7991      		ld r23,Y+
+ 651 0418 8991      		ld r24,Y+
+ 652 041a 9991      		ld r25,Y+
+ 653 041c 20E0      		ldi r18,lo8(0x3f800000)
+ 654 041e 30E0      		ldi r19,hi8(0x3f800000)
+ 655 0420 40E8      		ldi r20,hlo8(0x3f800000)
+ 656 0422 5FE3      		ldi r21,hhi8(0x3f800000)
+ 657 0424 0E94 0000 		call __eqsf2
+ 658 0428 8823      		tst r24
+ 659 042a 01F4      		brne .L49
+ 130:carproject.c  **** 			 counter++;
+ 661               	.LM48:
+ 662 042c 0F5F      		subi r16,lo8(-(1))
+ 663 042e 1F4F      		sbci r17,hi8(-(1))
+ 664               	.L49:
+ 128:carproject.c  **** 	for (i = 0; i < 8; i++) {
+ 666               	.LM49:
+ 667 0430 80E0      		ldi r24,hi8(sensors+32)
+ 668 0432 C030      		cpi r28,lo8(sensors+32)
+ 669 0434 D807      		cpc r29,r24
+ 670 0436 01F4      		brne .L51
+ 131:carproject.c  **** 	}
+ 132:carproject.c  **** 	if (counter > 5) {
+ 672               	.LM50:
+ 673 0438 0630      		cpi r16,6
+ 674 043a 1105      		cpc r17,__zero_reg__
+ 675 043c 04F0      		brlt .L52
+ 133:carproject.c  **** 		if (!lapFlag)
+ 677               	.LM51:
+ 678 043e 6091 0000 		lds r22,lapFlag
+ 679 0442 7091 0000 		lds r23,lapFlag+1
+ 680 0446 8091 0000 		lds r24,lapFlag+2
+ 681 044a 9091 0000 		lds r25,lapFlag+3
+ 682 044e 20E0      		ldi r18,lo8(0x0)
+ 683 0450 30E0      		ldi r19,hi8(0x0)
+ 684 0452 A901      		movw r20,r18
+ 685 0454 0E94 0000 		call __nesf2
+ 686 0458 8823      		tst r24
+ 687 045a 01F4      		brne .L53
+ 134:carproject.c  **** 			lapCounter++;
+ 689               	.LM52:
+ 690 045c 8091 0000 		lds r24,lapCounter
+ 691 0460 9091 0000 		lds r25,lapCounter+1
+ 692 0464 0196      		adiw r24,1
+ 693 0466 9093 0000 		sts lapCounter+1,r25
+ 694 046a 8093 0000 		sts lapCounter,r24
+ 695               	.L53:
+ 135:carproject.c  **** 		lapFlag = true;
+ 697               	.LM53:
+ 698 046e 80E0      		ldi r24,lo8(0x3f800000)
+ 699 0470 90E0      		ldi r25,hi8(0x3f800000)
+ 700 0472 A0E8      		ldi r26,hlo8(0x3f800000)
+ 701 0474 BFE3      		ldi r27,hhi8(0x3f800000)
+ 702 0476 8093 0000 		sts lapFlag,r24
+ 703 047a 9093 0000 		sts lapFlag+1,r25
+ 704 047e A093 0000 		sts lapFlag+2,r26
+ 705 0482 B093 0000 		sts lapFlag+3,r27
+ 136:carproject.c  **** 		previous = 0.0;
+ 707               	.LM54:
+ 708 0486 80E0      		ldi r24,lo8(0x0)
+ 709 0488 90E0      		ldi r25,hi8(0x0)
+ 710 048a DC01      		movw r26,r24
+ 711 048c 8093 0000 		sts previous.1304,r24
+ 712 0490 9093 0000 		sts previous.1304+1,r25
+ 713 0494 A093 0000 		sts previous.1304+2,r26
+ 714 0498 B093 0000 		sts previous.1304+3,r27
+ 137:carproject.c  **** 		return 0.0;
+ 716               	.LM55:
+ 717 049c 50E0      		ldi r21,lo8(0)
+ 718 049e 40E0      		ldi r20,lo8(0)
+ 719 04a0 30E0      		ldi r19,lo8(0)
+ 720 04a2 20E0      		ldi r18,lo8(0)
+ 721 04a4 00C0      		rjmp .L55
+ 722               	.L52:
+ 138:carproject.c  **** 	}
+ 139:carproject.c  **** 	lapFlag = false;
+ 724               	.LM56:
+ 725 04a6 80E0      		ldi r24,lo8(0x0)
+ 726 04a8 90E0      		ldi r25,hi8(0x0)
+ 727 04aa DC01      		movw r26,r24
+ 728 04ac 8093 0000 		sts lapFlag,r24
+ 729 04b0 9093 0000 		sts lapFlag+1,r25
+ 730 04b4 A093 0000 		sts lapFlag+2,r26
+ 731 04b8 B093 0000 		sts lapFlag+3,r27
+ 140:carproject.c  **** 	if (sensors[0])
+ 733               	.LM57:
+ 734 04bc 6091 0000 		lds r22,sensors
+ 735 04c0 7091 0000 		lds r23,sensors+1
+ 736 04c4 8091 0000 		lds r24,sensors+2
+ 737 04c8 9091 0000 		lds r25,sensors+3
+ 738 04cc 20E0      		ldi r18,lo8(0x0)
+ 739 04ce 30E0      		ldi r19,hi8(0x0)
+ 740 04d0 A901      		movw r20,r18
+ 741 04d2 0E94 0000 		call __nesf2
+ 742 04d6 8823      		tst r24
+ 743 04d8 01F0      		breq .+2
+ 744 04da 00C0      		rjmp .L57
+ 141:carproject.c  **** 		value = 1.0;
+ 142:carproject.c  **** 	else if (sensors[7])
+ 746               	.LM58:
+ 747 04dc 6091 0000 		lds r22,sensors+28
+ 748 04e0 7091 0000 		lds r23,sensors+28+1
+ 749 04e4 8091 0000 		lds r24,sensors+28+2
+ 750 04e8 9091 0000 		lds r25,sensors+28+3
+ 751 04ec 20E0      		ldi r18,lo8(0x0)
+ 752 04ee 30E0      		ldi r19,hi8(0x0)
+ 753 04f0 A901      		movw r20,r18
+ 754 04f2 0E94 0000 		call __nesf2
+ 755 04f6 8823      		tst r24
+ 756 04f8 01F0      		breq .+2
+ 757 04fa 00C0      		rjmp .L58
+ 143:carproject.c  **** 		value = -1.0;
+ 144:carproject.c  **** 	else if (sensors[1])
+ 759               	.LM59:
+ 760 04fc 6091 0000 		lds r22,sensors+4
+ 761 0500 7091 0000 		lds r23,sensors+4+1
+ 762 0504 8091 0000 		lds r24,sensors+4+2
+ 763 0508 9091 0000 		lds r25,sensors+4+3
+ 764 050c 20E0      		ldi r18,lo8(0x0)
+ 765 050e 30E0      		ldi r19,hi8(0x0)
+ 766 0510 A901      		movw r20,r18
+ 767 0512 0E94 0000 		call __nesf2
+ 768 0516 8823      		tst r24
+ 769 0518 01F0      		breq .+2
+ 770 051a 00C0      		rjmp .L59
+ 145:carproject.c  **** 		value = 0.7;
+ 146:carproject.c  **** 	else if (sensors[6])
+ 772               	.LM60:
+ 773 051c 6091 0000 		lds r22,sensors+24
+ 774 0520 7091 0000 		lds r23,sensors+24+1
+ 775 0524 8091 0000 		lds r24,sensors+24+2
+ 776 0528 9091 0000 		lds r25,sensors+24+3
+ 777 052c 20E0      		ldi r18,lo8(0x0)
+ 778 052e 30E0      		ldi r19,hi8(0x0)
+ 779 0530 A901      		movw r20,r18
+ 780 0532 0E94 0000 		call __nesf2
+ 781 0536 8823      		tst r24
+ 782 0538 01F0      		breq .+2
+ 783 053a 00C0      		rjmp .L60
+ 147:carproject.c  **** 		value = -0.7;
+ 148:carproject.c  **** 	else if (sensors[2])
+ 785               	.LM61:
+ 786 053c 6091 0000 		lds r22,sensors+8
+ 787 0540 7091 0000 		lds r23,sensors+8+1
+ 788 0544 8091 0000 		lds r24,sensors+8+2
+ 789 0548 9091 0000 		lds r25,sensors+8+3
+ 790 054c 20E0      		ldi r18,lo8(0x0)
+ 791 054e 30E0      		ldi r19,hi8(0x0)
+ 792 0550 A901      		movw r20,r18
+ 793 0552 0E94 0000 		call __nesf2
+ 794 0556 8823      		tst r24
+ 795 0558 01F0      		breq .+2
+ 796 055a 00C0      		rjmp .L61
+ 149:carproject.c  **** 		value = 0.35;
+ 150:carproject.c  **** 	else if (sensors[5])
+ 798               	.LM62:
+ 799 055c 6091 0000 		lds r22,sensors+20
+ 800 0560 7091 0000 		lds r23,sensors+20+1
+ 801 0564 8091 0000 		lds r24,sensors+20+2
+ 802 0568 9091 0000 		lds r25,sensors+20+3
+ 803 056c 20E0      		ldi r18,lo8(0x0)
+ 804 056e 30E0      		ldi r19,hi8(0x0)
+ 805 0570 A901      		movw r20,r18
+ 806 0572 0E94 0000 		call __nesf2
+ 807 0576 8823      		tst r24
+ 808 0578 01F4      		brne .L62
+ 151:carproject.c  **** 		value = -0.35;
+ 152:carproject.c  **** 	else if (sensors[3])
+ 810               	.LM63:
+ 811 057a 6091 0000 		lds r22,sensors+12
+ 812 057e 7091 0000 		lds r23,sensors+12+1
+ 813 0582 8091 0000 		lds r24,sensors+12+2
+ 814 0586 9091 0000 		lds r25,sensors+12+3
+ 815 058a 20E0      		ldi r18,lo8(0x0)
+ 816 058c 30E0      		ldi r19,hi8(0x0)
+ 817 058e A901      		movw r20,r18
+ 818 0590 0E94 0000 		call __nesf2
+ 819 0594 8823      		tst r24
+ 820 0596 01F4      		brne .L63
+ 153:carproject.c  **** 		value = 0.0;
+ 154:carproject.c  **** 	else if (sensors[4])
+ 822               	.LM64:
+ 823 0598 6091 0000 		lds r22,sensors+16
+ 824 059c 7091 0000 		lds r23,sensors+16+1
+ 825 05a0 8091 0000 		lds r24,sensors+16+2
+ 826 05a4 9091 0000 		lds r25,sensors+16+3
+ 827 05a8 20E0      		ldi r18,lo8(0x0)
+ 828 05aa 30E0      		ldi r19,hi8(0x0)
+ 829 05ac A901      		movw r20,r18
+ 830 05ae 0E94 0000 		call __nesf2
+ 831 05b2 8823      		tst r24
+ 832 05b4 01F4      		brne .L64
+ 155:carproject.c  **** 		value = -0.0;
+ 156:carproject.c  **** 	else	
+ 157:carproject.c  **** 		value = previous; 
+ 834               	.LM65:
+ 835 05b6 5091 0000 		lds r21,previous.1304
+ 836 05ba 4091 0000 		lds r20,previous.1304+1
+ 837 05be 3091 0000 		lds r19,previous.1304+2
+ 838 05c2 2091 0000 		lds r18,previous.1304+3
+ 839 05c6 00C0      		rjmp .L56
+ 840               	.L57:
+ 141:carproject.c  **** 		value = 1.0;
+ 842               	.LM66:
+ 843 05c8 50E0      		ldi r21,lo8(0)
+ 844 05ca 40E0      		ldi r20,lo8(0)
+ 845 05cc 30E8      		ldi r19,lo8(-128)
+ 846 05ce 00C0      		rjmp .L67
+ 847               	.L58:
+ 143:carproject.c  **** 		value = -1.0;
+ 849               	.LM67:
+ 850 05d0 50E0      		ldi r21,lo8(0)
+ 851 05d2 40E0      		ldi r20,lo8(0)
+ 852 05d4 30E8      		ldi r19,lo8(-128)
+ 853 05d6 00C0      		rjmp .L68
+ 854               	.L59:
+ 145:carproject.c  **** 		value = 0.7;
+ 856               	.LM68:
+ 857 05d8 53E3      		ldi r21,lo8(51)
+ 858 05da 43E3      		ldi r20,lo8(51)
+ 859 05dc 33E3      		ldi r19,lo8(51)
+ 860               	.L67:
+ 861 05de 2FE3      		ldi r18,lo8(63)
+ 862 05e0 00C0      		rjmp .L56
+ 863               	.L60:
+ 147:carproject.c  **** 		value = -0.7;
+ 865               	.LM69:
+ 866 05e2 53E3      		ldi r21,lo8(51)
+ 867 05e4 43E3      		ldi r20,lo8(51)
+ 868 05e6 33E3      		ldi r19,lo8(51)
+ 869               	.L68:
+ 870 05e8 2FEB      		ldi r18,lo8(-65)
+ 871 05ea 00C0      		rjmp .L56
+ 872               	.L61:
+ 149:carproject.c  **** 		value = 0.35;
+ 874               	.LM70:
+ 875 05ec 53E3      		ldi r21,lo8(51)
+ 876 05ee 43E3      		ldi r20,lo8(51)
+ 877 05f0 33EB      		ldi r19,lo8(-77)
+ 878 05f2 2EE3      		ldi r18,lo8(62)
+ 879 05f4 00C0      		rjmp .L56
+ 880               	.L62:
+ 151:carproject.c  **** 		value = -0.35;
+ 882               	.LM71:
+ 883 05f6 53E3      		ldi r21,lo8(51)
+ 884 05f8 43E3      		ldi r20,lo8(51)
+ 885 05fa 33EB      		ldi r19,lo8(-77)
+ 886 05fc 2EEB      		ldi r18,lo8(-66)
+ 887 05fe 00C0      		rjmp .L56
+ 888               	.L63:
+ 153:carproject.c  **** 		value = 0.0;
+ 890               	.LM72:
+ 891 0600 50E0      		ldi r21,lo8(0)
+ 892 0602 40E0      		ldi r20,lo8(0)
+ 893 0604 30E0      		ldi r19,lo8(0)
+ 894 0606 20E0      		ldi r18,lo8(0)
+ 895 0608 00C0      		rjmp .L56
+ 896               	.L64:
+ 155:carproject.c  **** 		value = -0.0;
+ 898               	.LM73:
+ 899 060a 50E0      		ldi r21,lo8(0)
+ 900 060c 40E0      		ldi r20,lo8(0)
+ 901 060e 30E0      		ldi r19,lo8(0)
+ 902 0610 20E8      		ldi r18,lo8(-128)
+ 903               	.L56:
+ 158:carproject.c  **** 
+ 159:carproject.c  **** 
+ 160:carproject.c  **** 	previous = value;
+ 905               	.LM74:
+ 906 0612 FA01      		movw r30,r20
+ 907 0614 B901      		movw r22,r18
+ 908 0616 8F2F      		mov r24,r31
+ 909 0618 942F      		mov r25,r20
+ 910 061a A72F      		mov r26,r23
+ 911 061c B22F      		mov r27,r18
+ 912 061e 8093 0000 		sts previous.1304,r24
+ 913 0622 9093 0000 		sts previous.1304+1,r25
+ 914 0626 A093 0000 		sts previous.1304+2,r26
+ 915 062a B093 0000 		sts previous.1304+3,r27
+ 916               	.L55:
+ 161:carproject.c  **** 	return value;
+ 162:carproject.c  **** }
+ 918               	.LM75:
+ 919 062e DA01      		movw r26,r20
+ 920 0630 F901      		movw r30,r18
+ 921 0632 6B2F      		mov r22,r27
+ 922 0634 742F      		mov r23,r20
+ 923 0636 8F2F      		mov r24,r31
+ 924 0638 922F      		mov r25,r18
+ 925               	/* epilogue start */
+ 926 063a DF91      		pop r29
+ 927 063c CF91      		pop r28
+ 928 063e 1F91      		pop r17
+ 929 0640 0F91      		pop r16
+ 930 0642 0895      		ret
+ 936               	.Lscope4:
+ 938               		.stabd	78,0,0
+ 941               	.global	absFloat
+ 943               	absFloat:
+ 944               		.stabd	46,0,0
+ 163:carproject.c  **** 
+ 164:carproject.c  **** float absFloat(float value) {
+ 946               	.LM76:
+ 947               	.LFBB5:
+ 948 0644 EF92      		push r14
+ 949 0646 FF92      		push r15
+ 950 0648 0F93      		push r16
+ 951 064a 1F93      		push r17
+ 952               	/* prologue: function */
+ 953               	/* frame size = 0 */
+ 954               	/* stack size = 4 */
+ 955               	.L__stack_usage = 4
+ 956 064c 7B01      		movw r14,r22
+ 957 064e 8C01      		movw r16,r24
+ 165:carproject.c  **** 	if (value < 0.0)
+ 959               	.LM77:
+ 960 0650 20E0      		ldi r18,lo8(0x0)
+ 961 0652 30E0      		ldi r19,hi8(0x0)
+ 962 0654 A901      		movw r20,r18
+ 963 0656 0E94 0000 		call __ltsf2
+ 964 065a 87FF      		sbrs r24,7
+ 965 065c 00C0      		rjmp .L70
+ 166:carproject.c  **** 		return -value;
+ 967               	.LM78:
+ 968 065e 17FB      		bst r17,7
+ 969 0660 1095      		com r17
+ 970 0662 17F9      		bld r17,7
+ 971 0664 1095      		com r17
+ 972               	.L70:
+ 167:carproject.c  **** 	return value;
+ 168:carproject.c  **** }
+ 974               	.LM79:
+ 975 0666 6E2D      		mov r22,r14
+ 976 0668 7F2D      		mov r23,r15
+ 977 066a 802F      		mov r24,r16
+ 978 066c 912F      		mov r25,r17
+ 979               	/* epilogue start */
+ 980 066e 1F91      		pop r17
+ 981 0670 0F91      		pop r16
+ 982 0672 FF90      		pop r15
+ 983 0674 EF90      		pop r14
+ 984 0676 0895      		ret
+ 986               	.Lscope5:
+ 988               		.stabd	78,0,0
+ 990               	.global	main
+ 992               	main:
+ 993               		.stabd	46,0,0
+ 169:carproject.c  **** 
+ 170:carproject.c  **** int main(void)
+ 171:carproject.c  **** {  
+ 995               	.LM80:
+ 996               	.LFBB6:
+ 997 0678 2F92      		push r2
+ 998 067a 3F92      		push r3
+ 999 067c 4F92      		push r4
+ 1000 067e 5F92      		push r5
+ 1001 0680 6F92      		push r6
+ 1002 0682 7F92      		push r7
+ 1003 0684 8F92      		push r8
+ 1004 0686 9F92      		push r9
+ 1005 0688 AF92      		push r10
+ 1006 068a BF92      		push r11
+ 1007 068c CF92      		push r12
+ 1008 068e DF92      		push r13
+ 1009 0690 EF92      		push r14
+ 1010 0692 FF92      		push r15
+ 1011 0694 0F93      		push r16
+ 1012 0696 1F93      		push r17
+ 1013               	/* prologue: function */
+ 1014               	/* frame size = 0 */
+ 1015               	/* stack size = 16 */
+ 1016               	.L__stack_usage = 16
+ 172:carproject.c  **** 	int i = 0;
+ 173:carproject.c  **** 	for(; i<8; i++) {
+ 174:carproject.c  **** 			sensors[i] = 0;
+ 1018               	.LM81:
+ 1019 0698 80E0      		ldi r24,lo8(0x0)
+ 1020 069a 90E0      		ldi r25,hi8(0x0)
+ 1021 069c DC01      		movw r26,r24
+ 1022 069e 8093 0000 		sts sensors,r24
+ 1023 06a2 9093 0000 		sts sensors+1,r25
+ 1024 06a6 A093 0000 		sts sensors+2,r26
+ 1025 06aa B093 0000 		sts sensors+3,r27
+ 1026 06ae 8093 0000 		sts sensors+4,r24
+ 1027 06b2 9093 0000 		sts sensors+4+1,r25
+ 1028 06b6 A093 0000 		sts sensors+4+2,r26
+ 1029 06ba B093 0000 		sts sensors+4+3,r27
+ 1030 06be 8093 0000 		sts sensors+8,r24
+ 1031 06c2 9093 0000 		sts sensors+8+1,r25
+ 1032 06c6 A093 0000 		sts sensors+8+2,r26
+ 1033 06ca B093 0000 		sts sensors+8+3,r27
+ 1034 06ce 8093 0000 		sts sensors+12,r24
+ 1035 06d2 9093 0000 		sts sensors+12+1,r25
+ 1036 06d6 A093 0000 		sts sensors+12+2,r26
+ 1037 06da B093 0000 		sts sensors+12+3,r27
+ 1038 06de 8093 0000 		sts sensors+16,r24
+ 1039 06e2 9093 0000 		sts sensors+16+1,r25
+ 1040 06e6 A093 0000 		sts sensors+16+2,r26
+ 1041 06ea B093 0000 		sts sensors+16+3,r27
+ 1042 06ee 8093 0000 		sts sensors+20,r24
+ 1043 06f2 9093 0000 		sts sensors+20+1,r25
+ 1044 06f6 A093 0000 		sts sensors+20+2,r26
+ 1045 06fa B093 0000 		sts sensors+20+3,r27
+ 1046 06fe 8093 0000 		sts sensors+24,r24
+ 1047 0702 9093 0000 		sts sensors+24+1,r25
+ 1048 0706 A093 0000 		sts sensors+24+2,r26
+ 1049 070a B093 0000 		sts sensors+24+3,r27
+ 1050 070e 8093 0000 		sts sensors+28,r24
+ 1051 0712 9093 0000 		sts sensors+28+1,r25
+ 1052 0716 A093 0000 		sts sensors+28+2,r26
+ 1053 071a B093 0000 		sts sensors+28+3,r27
+ 175:carproject.c  **** 	}
+ 176:carproject.c  **** 
+ 177:carproject.c  **** 	sei();
+ 1055               	.LM82:
+ 1056               	/* #APP */
+ 1057               	 ;  177 "carproject.c" 1
+ 1058 071e 7894      		sei
+ 1059               	 ;  0 "" 2
+ 178:carproject.c  **** 	SETUP_SENSOR_IO();
+ 1061               	.LM83:
+ 1062               	/* #NOAPP */
+ 1063 0720 11B8      		out 33-32,__zero_reg__
+ 1064 0722 8FEF      		ldi r24,lo8(-1)
+ 1065 0724 8AB9      		out 42-32,r24
+ 179:carproject.c  **** 
+ 180:carproject.c  **** 	CLEAR_BIT(DDRE, PE5);//Input pin 
+ 1067               	.LM84:
+ 1068 0726 6D98      		cbi 45-32,5
+ 181:carproject.c  **** 	ENABLE_EXTERNAL_INTERRUPT(INT5);//External Interrupt Request 5 INT5 enabled*/
+ 1070               	.LM85:
+ 1071 0728 ED9A      		sbi 61-32,5
+ 182:carproject.c  **** 
+ 183:carproject.c  **** 	InitServo(0);
+ 1073               	.LM86:
+ 1074 072a 80E0      		ldi r24,lo8(0)
+ 1075 072c 90E0      		ldi r25,hi8(0)
+ 1076 072e 0E94 0000 		call InitServo
+ 184:carproject.c  **** 	InitMotor();
+ 1078               	.LM87:
+ 1079 0732 0E94 0000 		call InitMotor
+ 185:carproject.c  **** 
+ 186:carproject.c  **** 	float currentDirection = 0;
+ 1081               	.LM88:
+ 1082 0736 FF24      		clr r15
+ 1083 0738 00E0      		ldi r16,lo8(0)
+ 1084 073a 10E0      		ldi r17,lo8(0)
+ 1085 073c EE24      		clr r14
+ 1086               	.L82:
+ 1087               	.LBB2:
+ 187:carproject.c  **** 	float targetDirection = 0;
+ 188:carproject.c  **** 
+ 189:carproject.c  **** 	for (;;)
+ 190:carproject.c  **** 	{	
+ 191:carproject.c  **** 		float direction = GetFilteredSensorValue();
+ 1089               	.LM89:
+ 1090 073e 0E94 0000 		call GetFilteredSensorValue
+ 1091 0742 1B01      		movw r2,r22
+ 1092 0744 2C01      		movw r4,r24
+ 192:carproject.c  **** 		if (lapCounter > 3) {
+ 1094               	.LM90:
+ 1095 0746 8091 0000 		lds r24,lapCounter
+ 1096 074a 9091 0000 		lds r25,lapCounter+1
+ 1097 074e 8430      		cpi r24,4
+ 1098 0750 9105      		cpc r25,__zero_reg__
+ 1099 0752 04F0      		brlt .L75
+ 193:carproject.c  **** 			SetMotorSpeed(0);
+ 1101               	.LM91:
+ 1102 0754 80E0      		ldi r24,lo8(0)
+ 1103 0756 90E0      		ldi r25,hi8(0)
+ 1104 0758 0E94 0000 		call SetMotorSpeed
+ 1105               	.L76:
+ 1106 075c 00C0      		rjmp .L76
+ 1107               	.L75:
+ 194:carproject.c  **** 			while(true);
+ 195:carproject.c  **** 		}
+ 196:carproject.c  **** 		targetDirection = direction * 45.0;
+ 1109               	.LM92:
+ 1110 075e C201      		movw r24,r4
+ 1111 0760 B101      		movw r22,r2
+ 1112 0762 20E0      		ldi r18,lo8(0x42340000)
+ 1113 0764 30E0      		ldi r19,hi8(0x42340000)
+ 1114 0766 44E3      		ldi r20,hlo8(0x42340000)
+ 1115 0768 52E4      		ldi r21,hhi8(0x42340000)
+ 1116 076a 0E94 0000 		call __mulsf3
+ 1117 076e D62E      		mov r13,r22
+ 1118 0770 C72E      		mov r12,r23
+ 1119 0772 B82E      		mov r11,r24
+ 1120 0774 A92E      		mov r10,r25
+ 197:carproject.c  **** 		if (absFloat(targetDirection) >= absFloat(currentDirection)) {
+ 1122               	.LM93:
+ 1123 0776 A601      		movw r20,r12
+ 1124 0778 9501      		movw r18,r10
+ 1125 077a 652F      		mov r22,r21
+ 1126 077c 742F      		mov r23,r20
+ 1127 077e 832F      		mov r24,r19
+ 1128 0780 922F      		mov r25,r18
+ 1129 0782 0E94 0000 		call absFloat
+ 1130 0786 3B01      		movw r6,r22
+ 1131 0788 4C01      		movw r8,r24
+ 1132 078a 6F2D      		mov r22,r15
+ 1133 078c 702F      		mov r23,r16
+ 1134 078e 812F      		mov r24,r17
+ 1135 0790 9E2D      		mov r25,r14
+ 1136 0792 0E94 0000 		call absFloat
+ 1137 0796 9B01      		movw r18,r22
+ 1138 0798 AC01      		movw r20,r24
+ 1139 079a C401      		movw r24,r8
+ 1140 079c B301      		movw r22,r6
+ 1141 079e 0E94 0000 		call __gesf2
+ 1142 07a2 87FF      		sbrs r24,7
+ 1143 07a4 00C0      		rjmp .L79
+ 198:carproject.c  **** 			currentDirection = targetDirection;				
+ 199:carproject.c  **** 		}
+ 200:carproject.c  **** 		else {
+ 201:carproject.c  **** 			currentDirection += (targetDirection - currentDirection);
+ 1145               	.LM94:
+ 1146 07a6 A601      		movw r20,r12
+ 1147 07a8 9501      		movw r18,r10
+ 1148 07aa 652F      		mov r22,r21
+ 1149 07ac 742F      		mov r23,r20
+ 1150 07ae 832F      		mov r24,r19
+ 1151 07b0 922F      		mov r25,r18
+ 1152 07b2 2F2D      		mov r18,r15
+ 1153 07b4 302F      		mov r19,r16
+ 1154 07b6 412F      		mov r20,r17
+ 1155 07b8 5E2D      		mov r21,r14
+ 1156 07ba 0E94 0000 		call __subsf3
+ 1157 07be 5B01      		movw r10,r22
+ 1158 07c0 6C01      		movw r12,r24
+ 1159 07c2 2F2D      		mov r18,r15
+ 1160 07c4 302F      		mov r19,r16
+ 1161 07c6 412F      		mov r20,r17
+ 1162 07c8 5E2D      		mov r21,r14
+ 1163 07ca CA01      		movw r24,r20
+ 1164 07cc B901      		movw r22,r18
+ 1165 07ce 2A2D      		mov r18,r10
+ 1166 07d0 3B2D      		mov r19,r11
+ 1167 07d2 4C2D      		mov r20,r12
+ 1168 07d4 5D2D      		mov r21,r13
+ 1169 07d6 0E94 0000 		call __addsf3
+ 1170 07da F62E      		mov r15,r22
+ 1171 07dc 072F      		mov r16,r23
+ 1172 07de 182F      		mov r17,r24
+ 1173 07e0 E92E      		mov r14,r25
+ 1174 07e2 00C0      		rjmp .L77
+ 1175               	.L79:
+ 198:carproject.c  **** 			currentDirection = targetDirection;				
+ 1177               	.LM95:
+ 1178 07e4 FD2C      		mov r15,r13
+ 1179 07e6 0C2D      		mov r16,r12
+ 1180 07e8 1B2D      		mov r17,r11
+ 1181 07ea EA2C      		mov r14,r10
+ 1182               	.L77:
+ 202:carproject.c  **** 		}
+ 203:carproject.c  **** 		MoveServo(currentDirection);
+ 1184               	.LM96:
+ 1185 07ec 6F2D      		mov r22,r15
+ 1186 07ee 702F      		mov r23,r16
+ 1187 07f0 812F      		mov r24,r17
+ 1188 07f2 9E2D      		mov r25,r14
+ 1189 07f4 0E94 0000 		call __fixsfsi
+ 1190 07f8 DC01      		movw r26,r24
+ 1191 07fa CB01      		movw r24,r22
+ 1192 07fc 0E94 0000 		call MoveServo
+ 204:carproject.c  **** 		if (driveFlag)
+ 1194               	.LM97:
+ 1195 0800 8091 0000 		lds r24,driveFlag
+ 1196 0804 8823      		tst r24
+ 1197 0806 01F4      		brne .+2
+ 1198 0808 00C0      		rjmp .L82
+ 205:carproject.c  **** 			SetMotorSpeed(50 + (1.0 - absFloat(direction)) * 40);
+ 1200               	.LM98:
+ 1201 080a C201      		movw r24,r4
+ 1202 080c B101      		movw r22,r2
+ 1203 080e 0E94 0000 		call absFloat
+ 1204 0812 9B01      		movw r18,r22
+ 1205 0814 AC01      		movw r20,r24
+ 1206 0816 60E0      		ldi r22,lo8(0x3f800000)
+ 1207 0818 70E0      		ldi r23,hi8(0x3f800000)
+ 1208 081a 80E8      		ldi r24,hlo8(0x3f800000)
+ 1209 081c 9FE3      		ldi r25,hhi8(0x3f800000)
+ 1210 081e 0E94 0000 		call __subsf3
+ 1211 0822 20E0      		ldi r18,lo8(0x42200000)
+ 1212 0824 30E0      		ldi r19,hi8(0x42200000)
+ 1213 0826 40E2      		ldi r20,hlo8(0x42200000)
+ 1214 0828 52E4      		ldi r21,hhi8(0x42200000)
+ 1215 082a 0E94 0000 		call __mulsf3
+ 1216 082e 20E0      		ldi r18,lo8(0x42480000)
+ 1217 0830 30E0      		ldi r19,hi8(0x42480000)
+ 1218 0832 48E4      		ldi r20,hlo8(0x42480000)
+ 1219 0834 52E4      		ldi r21,hhi8(0x42480000)
+ 1220 0836 0E94 0000 		call __addsf3
+ 1221 083a 0E94 0000 		call __fixsfsi
+ 1222 083e DC01      		movw r26,r24
+ 1223 0840 CB01      		movw r24,r22
+ 1224 0842 0E94 0000 		call SetMotorSpeed
+ 1225 0846 00C0      		rjmp .L82
+ 1226               	.LBE2:
+ 1231               	.Lscope6:
+ 1233               		.stabd	78,0,0
+ 1234               	.global	driveFlag
+ 1235               	.global	driveFlag
+ 1236               		.section .bss
+ 1239               	driveFlag:
+ 1240 0000 00        		.skip 1,0
+ 1241               	.global	lastTarget
+ 1242               	.global	lastTarget
+ 1245               	lastTarget:
+ 1246 0001 0000 0000 		.skip 4,0
+ 1247               	.global	sensorTarget
+ 1248               		.data
+ 1251               	sensorTarget:
+ 1252 0000 00        		.byte	0
+ 1253 0001 00        		.byte	0
+ 1254 0002 34        		.byte	52
+ 1255 0003 42        		.byte	66
+ 1256 0004 00        		.byte	0
+ 1257 0005 00        		.byte	0
+ 1258 0006 F0        		.byte	-16
+ 1259 0007 41        		.byte	65
+ 1260 0008 00        		.byte	0
+ 1261 0009 00        		.byte	0
+ 1262 000a 70        		.byte	112
+ 1263 000b 41        		.byte	65
+ 1264 000c 00        		.byte	0
+ 1265 000d 00        		.byte	0
+ 1266 000e A0        		.byte	-96
+ 1267 000f 40        		.byte	64
+ 1268 0010 00        		.byte	0
+ 1269 0011 00        		.byte	0
+ 1270 0012 A0        		.byte	-96
+ 1271 0013 C0        		.byte	-64
+ 1272 0014 00        		.byte	0
+ 1273 0015 00        		.byte	0
+ 1274 0016 70        		.byte	112
+ 1275 0017 C1        		.byte	-63
+ 1276 0018 00        		.byte	0
+ 1277 0019 00        		.byte	0
+ 1278 001a F0        		.byte	-16
+ 1279 001b C1        		.byte	-63
+ 1280 001c 00        		.byte	0
+ 1281 001d 00        		.byte	0
+ 1282 001e 34        		.byte	52
+ 1283 001f C2        		.byte	-62
+ 1284               	.global	lapFlag
+ 1285               	.global	lapFlag
+ 1286               		.section .bss
+ 1289               	lapFlag:
+ 1290 0005 0000 0000 		.skip 4,0
+ 1291               	.global	lapCounter
+ 1292               	.global	lapCounter
+ 1295               	lapCounter:
+ 1296 0009 0000      		.skip 2,0
+ 1297               		.comm sensors,32,1
+ 1298               		.lcomm previous.1304,4
+ 1314               		.text
+ 1316               	.Letext0:
+ 1317               	.global __do_copy_data
+ 1318               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 carproject.c
+     /tmp/ccHBqeb7.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccHBqeb7.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccHBqeb7.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccHBqeb7.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccHBqeb7.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccHBqeb7.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccHBqeb7.s:74     .text:0000000000000000 __vector_6
+     /tmp/ccHBqeb7.s:1239   .bss:0000000000000000 driveFlag
+     /tmp/ccHBqeb7.s:111    .text:000000000000001e ShiftTowards
+     /tmp/ccHBqeb7.s:264    .text:0000000000000118 UpdateSensors
+                            *COM*:0000000000000020 sensors
+     /tmp/ccHBqeb7.s:624    .text:0000000000000400 GetFilteredSensorValue
+     /tmp/ccHBqeb7.s:1289   .bss:0000000000000005 lapFlag
+     /tmp/ccHBqeb7.s:1295   .bss:0000000000000009 lapCounter
+                             .bss:000000000000000b previous.1304
+     /tmp/ccHBqeb7.s:943    .text:0000000000000644 absFloat
+     /tmp/ccHBqeb7.s:992    .text:0000000000000678 main
+     /tmp/ccHBqeb7.s:1245   .bss:0000000000000001 lastTarget
+     /tmp/ccHBqeb7.s:1251   .data:0000000000000000 sensorTarget
+
+UNDEFINED SYMBOLS
+__subsf3
+__gtsf2
+__ltsf2
+__addsf3
+__eqsf2
+__nesf2
+InitServo
+InitMotor
+SetMotorSpeed
+__mulsf3
+__gesf2
+__fixsfsi
+MoveServo
+__do_copy_data
+__do_clear_bss

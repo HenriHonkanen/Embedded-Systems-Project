@@ -1,0 +1,221 @@
+   1               		.file	"servo.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  74               	.global	StopServo
+  76               	StopServo:
+  77               		.stabd	46,0,0
+   1:servo.c       **** #include "servo.h"
+   2:servo.c       **** 
+   3:servo.c       **** void InitServo( int startValue ) {
+   4:servo.c       **** 	RESET_TIMER(1);
+   5:servo.c       **** 	SETUP_MODE14_FAST_PWM(1);
+   6:servo.c       **** 	ENABLE_SERVO_PWM_OUTPUT_PIN;
+   7:servo.c       **** 	ENABLE_COMPARE_OUTPUT_MODE(1);
+   8:servo.c       **** 	MoveServo(startValue);
+   9:servo.c       **** 	START_SERVO_TIMER_500NS_TICKS;
+  10:servo.c       **** }
+  11:servo.c       ****  
+  12:servo.c       **** void StopServo() {
+  79               	.LM0:
+  80               	.LFBB1:
+  81               	/* prologue: function */
+  82               	/* frame size = 0 */
+  83               	/* stack size = 0 */
+  84               	.L__stack_usage = 0
+  85               	.L2:
+  13:servo.c       **** 	WAIT_UNTIL_NO_PULSE_IS_BEING_EMITTED(1);
+  87               	.LM1:
+  88 0000 2091 8400 		lds r18,132
+  89 0004 3091 8500 		lds r19,132+1
+  90 0008 8091 8800 		lds r24,136
+  91 000c 9091 8900 		lds r25,136+1
+  92 0010 2817      		cp r18,r24
+  93 0012 3907      		cpc r19,r25
+  94 0014 00F4      		brsh .L2
+  14:servo.c       **** 	STOP_TIMER(1);
+  96               	.LM2:
+  97 0016 8091 8100 		lds r24,129
+  98 001a 887F      		andi r24,lo8(-8)
+  99 001c 8093 8100 		sts 129,r24
+ 100 0020 1092 8500 		sts 132+1,__zero_reg__
+ 101 0024 1092 8400 		sts 132,__zero_reg__
+ 102               	/* epilogue start */
+  15:servo.c       **** }
+ 104               	.LM3:
+ 105 0028 0895      		ret
+ 107               	.Lscope1:
+ 109               		.stabd	78,0,0
+ 112               	.global	MoveServo
+ 114               	MoveServo:
+ 115               		.stabd	46,0,0
+  16:servo.c       **** 
+  17:servo.c       **** void MoveServo(int targetValue) {
+ 117               	.LM4:
+ 118               	.LFBB2:
+ 119 002a AF92      		push r10
+ 120 002c BF92      		push r11
+ 121 002e CF92      		push r12
+ 122 0030 DF92      		push r13
+ 123 0032 EF92      		push r14
+ 124 0034 FF92      		push r15
+ 125 0036 0F93      		push r16
+ 126 0038 1F93      		push r17
+ 127               	/* prologue: function */
+ 128               	/* frame size = 0 */
+ 129               	/* stack size = 8 */
+ 130               	.L__stack_usage = 8
+  18:servo.c       **** 	int pulseLengthUS = map( targetValue, MIN_TARGET_VALUE, MAX_TARGET_VALUE, MIN_PULSE_US, MAX_PULSE_
+ 132               	.LM5:
+ 133 003a 00D0      		rcall .
+ 134 003c 0F92      		push __tmp_reg__
+ 135 003e 9C01      		movw r18,r24
+ 136 0040 B901      		movw r22,r18
+ 137 0042 8827      		clr r24
+ 138 0044 77FD      		sbrc r23,7
+ 139 0046 8095      		com r24
+ 140 0048 982F      		mov r25,r24
+ 141 004a 20ED      		ldi r18,lo8(2000)
+ 142 004c 37E0      		ldi r19,hi8(2000)
+ 143 004e 40E0      		ldi r20,hlo8(2000)
+ 144 0050 50E0      		ldi r21,hhi8(2000)
+ 145 0052 EDB7      		in r30,__SP_L__
+ 146 0054 FEB7      		in r31,__SP_H__
+ 147 0056 2183      		std Z+1,r18
+ 148 0058 3283      		std Z+2,r19
+ 149 005a 4383      		std Z+3,r20
+ 150 005c 5483      		std Z+4,r21
+ 151 005e 24EC      		ldi r18,lo8(-60)
+ 152 0060 3FEF      		ldi r19,hi8(-60)
+ 153 0062 4FEF      		ldi r20,hlo8(-60)
+ 154 0064 5FEF      		ldi r21,hhi8(-60)
+ 155 0066 FCE3      		ldi r31,lo8(60)
+ 156 0068 EF2E      		mov r14,r31
+ 157 006a F12C      		mov r15,__zero_reg__
+ 158 006c 012D      		mov r16,__zero_reg__
+ 159 006e 112D      		mov r17,__zero_reg__
+ 160 0070 E8EE      		ldi r30,lo8(1000)
+ 161 0072 AE2E      		mov r10,r30
+ 162 0074 E3E0      		ldi r30,hi8(1000)
+ 163 0076 BE2E      		mov r11,r30
+ 164 0078 C12C      		mov r12,__zero_reg__
+ 165 007a D12C      		mov r13,__zero_reg__
+ 166 007c 0E94 0000 		call map
+  19:servo.c       **** 	CONFIGURE_SERVO_PULSE(PULSE_INTERVAL_US, pulseLengthUS);
+ 168               	.LM6:
+ 169 0080 20E4      		ldi r18,lo8(8000)
+ 170 0082 3FE1      		ldi r19,hi8(8000)
+ 171 0084 3093 8700 		sts 134+1,r19
+ 172 0088 2093 8600 		sts 134,r18
+ 173 008c 8827      		clr r24
+ 174 008e 77FD      		sbrc r23,7
+ 175 0090 8095      		com r24
+ 176 0092 982F      		mov r25,r24
+ 177 0094 0E94 0000 		call __floatsisf
+ 178 0098 9B01      		movw r18,r22
+ 179 009a AC01      		movw r20,r24
+ 180 009c 0E94 0000 		call __addsf3
+ 181 00a0 0E94 0000 		call __fixunssfsi
+ 182 00a4 7093 8900 		sts 136+1,r23
+ 183 00a8 6093 8800 		sts 136,r22
+ 184 00ac 0F90      		pop __tmp_reg__
+ 185 00ae 0F90      		pop __tmp_reg__
+ 186 00b0 0F90      		pop __tmp_reg__
+ 187 00b2 0F90      		pop __tmp_reg__
+ 188               	/* epilogue start */
+  20:servo.c       **** }
+ 190               	.LM7:
+ 191 00b4 1F91      		pop r17
+ 192 00b6 0F91      		pop r16
+ 193 00b8 FF90      		pop r15
+ 194 00ba EF90      		pop r14
+ 195 00bc DF90      		pop r13
+ 196 00be CF90      		pop r12
+ 197 00c0 BF90      		pop r11
+ 198 00c2 AF90      		pop r10
+ 199 00c4 0895      		ret
+ 201               	.Lscope2:
+ 203               		.stabd	78,0,0
+ 206               	.global	InitServo
+ 208               	InitServo:
+ 209               		.stabd	46,0,0
+   3:servo.c       **** void InitServo( int startValue ) {
+ 211               	.LM8:
+ 212               	.LFBB3:
+ 213 00c6 CF93      		push r28
+ 214 00c8 DF93      		push r29
+ 215               	/* prologue: function */
+ 216               	/* frame size = 0 */
+ 217               	/* stack size = 2 */
+ 218               	.L__stack_usage = 2
+   4:servo.c       **** 	RESET_TIMER(1);
+ 220               	.LM9:
+ 221 00ca E0E8      		ldi r30,lo8(128)
+ 222 00cc F0E0      		ldi r31,hi8(128)
+ 223 00ce 1082      		st Z,__zero_reg__
+ 224 00d0 C1E8      		ldi r28,lo8(129)
+ 225 00d2 D0E0      		ldi r29,hi8(129)
+ 226 00d4 1882      		st Y,__zero_reg__
+ 227 00d6 1092 8500 		sts 132+1,__zero_reg__
+ 228 00da 1092 8400 		sts 132,__zero_reg__
+   5:servo.c       **** 	SETUP_MODE14_FAST_PWM(1);
+ 230               	.LM10:
+ 231 00de 2081      		ld r18,Z
+ 232 00e0 2E7F      		andi r18,lo8(-2)
+ 233 00e2 2083      		st Z,r18
+ 234 00e4 2081      		ld r18,Z
+ 235 00e6 2260      		ori r18,lo8(2)
+ 236 00e8 2083      		st Z,r18
+ 237 00ea 2881      		ld r18,Y
+ 238 00ec 2860      		ori r18,lo8(8)
+ 239 00ee 2883      		st Y,r18
+ 240 00f0 2881      		ld r18,Y
+ 241 00f2 2061      		ori r18,lo8(16)
+ 242 00f4 2883      		st Y,r18
+   6:servo.c       **** 	ENABLE_SERVO_PWM_OUTPUT_PIN;
+ 244               	.LM11:
+ 245 00f6 259A      		sbi 36-32,5
+   7:servo.c       **** 	ENABLE_COMPARE_OUTPUT_MODE(1);
+ 247               	.LM12:
+ 248 00f8 2081      		ld r18,Z
+ 249 00fa 2068      		ori r18,lo8(-128)
+ 250 00fc 2083      		st Z,r18
+   8:servo.c       **** 	MoveServo(startValue);
+ 252               	.LM13:
+ 253 00fe 0E94 0000 		call MoveServo
+   9:servo.c       **** 	START_SERVO_TIMER_500NS_TICKS;
+ 255               	.LM14:
+ 256 0102 8881      		ld r24,Y
+ 257 0104 8260      		ori r24,lo8(2)
+ 258 0106 8883      		st Y,r24
+ 259               	/* epilogue start */
+  10:servo.c       **** }
+ 261               	.LM15:
+ 262 0108 DF91      		pop r29
+ 263 010a CF91      		pop r28
+ 264 010c 0895      		ret
+ 266               	.Lscope3:
+ 268               		.stabd	78,0,0
+ 275               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 servo.c
+     /tmp/ccMxZPFd.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccMxZPFd.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccMxZPFd.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccMxZPFd.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccMxZPFd.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccMxZPFd.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccMxZPFd.s:76     .text:0000000000000000 StopServo
+     /tmp/ccMxZPFd.s:114    .text:000000000000002a MoveServo
+     /tmp/ccMxZPFd.s:208    .text:00000000000000c6 InitServo
+
+UNDEFINED SYMBOLS
+map
+__floatsisf
+__addsf3
+__fixunssfsi
