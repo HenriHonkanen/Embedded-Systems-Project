@@ -1,9 +1,18 @@
+#define F_CPU 16000000
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h> 
 #include <stdbool.h>
+
+#include <stdlib.h> 
+#include <stdio.h> 
+
 #include "servo.h"
 #include "motor.h"
+#include "LCD.h"
 #include "util.h"
+
 
 #define ENABLE_EXTERNAL_INTERRUPT(bit) SET_BIT(EIMSK, bit)
 #define DISABLE_EXTERNAL_INTERRUPT(bit) CLEAR_BIT(EIMSK, bit)
@@ -19,8 +28,18 @@
 
 bool driveFlag = false;
 
+bool updateScreen = true;
+char* status = "Waiting";
+char lap[4] = "0";
+
+
 ISR(INT5_vect) {
-	driveFlag = true;
+	if(!driveFlag) {	
+		ClearScreen();
+		status = "Driving";
+		updateScreen = true;
+		driveFlag = true;
+	}
 }
 
 float ShiftTowards( float target , float direction , float speed ) {
@@ -43,6 +62,8 @@ float lastTarget = 0;
 float sensorTarget[8] = {LARGE, MEDIUM, SMALL, CENTER, -CENTER, -SMALL, -MEDIUM, -LARGE};
 float lapFlag = false;
 int lapCounter = 0;
+
+
 
 void UpdateSensors(void) {
 
@@ -130,8 +151,11 @@ float GetFilteredSensorValue(void) {
 			 counter++;
 	}
 	if (counter > 5) {
-		if (!lapFlag)
+		if (!lapFlag) {
 			lapCounter++;
+			sprintf(lap,"%d",lapCounter);
+			updateScreen = true;
+		}
 		lapFlag = true;
 		previous = 0.0;
 		return 0.0;
@@ -174,6 +198,11 @@ int main(void)
 			sensors[i] = 0;
 	}
 
+	//Needs to be before sei.. don't ask why..
+	//Also needs a delay from start up..
+	_delay_ms(1000);
+	InitLCD();
+
 	sei();
 	SETUP_SENSOR_IO();
 
@@ -181,30 +210,60 @@ int main(void)
 	ENABLE_EXTERNAL_INTERRUPT(INT5);//External Interrupt Request 5 INT5 enabled*/
 
 	InitServo(0);
-	InitMotor();
+	InitMotor();	
+
 
 	float currentDirection = 0;
 	float targetDirection = 0;
 
+	bool terminated = false;
+
 	for (;;)
 	{	
-		float direction = GetFilteredSensorValue();
-		if (lapCounter > 3) {
-			SetMotorSpeed(0);
-			while(true);
-		}
-		targetDirection = direction * 45.0;
-		if (absFloat(targetDirection) >= absFloat(currentDirection)) {
-			currentDirection = targetDirection;				
-		}
-		else {
-			currentDirection += (targetDirection - currentDirection);
-		}
-		MoveServo(currentDirection);
-		if (driveFlag)
-			SetMotorSpeed(50 + (1.0 - absFloat(direction)) * 40);
-		//direction = ShiftTowards(target,direction,0.01);	
 
+		if(updateScreen) {
+			updateScreen = false;
+			ClearScreen();
+			WriteText("State:",1);
+			//cli();	//Incase we are writing when button is pressed.
+				WriteText_StartingFrom(status,2,7);
+			//sei();
+			WriteText("Lap:",3);
+			WriteText_StartingFrom(lap,4,7);
+		}
+
+
+		if( ! terminated ) {		
+
+			float direction = GetFilteredSensorValue();
+
+			if (lapCounter > 3) {			
+				SetMotorSpeed(0);
+				MoveServo(0);
+
+				terminated = true;
+				status = "Terminated";
+				updateScreen = true;
+				continue;
+
+			}
+
+		
+			targetDirection = direction * 45.0;
+
+			if (absFloat(targetDirection) >= absFloat(currentDirection)) {
+				currentDirection = targetDirection;				
+			}
+			else {
+				currentDirection += (targetDirection - currentDirection);
+			}
+
+			MoveServo(currentDirection);
+			
+			if (driveFlag) {
+				SetMotorSpeed(50 + (1.0 - absFloat(direction)) * 20);	
+			}
+		}
 	}
-return 0;
+	return 0;
 }
