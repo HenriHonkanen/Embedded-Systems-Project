@@ -10,6 +10,7 @@
 
 #include "servo.h"
 #include "motor.h"
+#include "tachometer.h"
 #include "LCD.h"
 #include "util.h"
 
@@ -21,41 +22,28 @@
     DDRA = INPUT;\
     DDRD = OUTPUT\
 
-#define CENTER 5
-#define SMALL 15
-#define MEDIUM 30
+#define CENTER 0
+#define SMALL 10
+#define MEDIUM 35
 #define LARGE 45
+
 
 bool driveFlag = false;
 
 bool updateScreen = true;
 char* status = "Waiting";
 char lap[4] = "0";
+char time[4] = "-1";
+char cyc[8] = "-1";
+
+volatile long ticker = 0;
+volatile int sec = 0;
 
 
-ISR(INT5_vect) {
-	if(!driveFlag) {	
-		ClearScreen();
-		status = "Driving";
-		updateScreen = true;
-		driveFlag = true;
-	}
-}
+volatile int targetSpeed;
+volatile float currentSpeed;
 
-float ShiftTowards( float target , float direction , float speed ) {
-
-	if((target-direction) > speed || (target-direction) < -speed ) {
-
-		if(direction < target) {
-			return direction+speed;
-		}
-		else if (direction > target) {
-			return direction-speed;
-		}
-	}
-	return target;
-}
-
+volatile float tachoPulsesPerSecond;
 
 float sensors[8];
 float lastTarget = 0;
@@ -63,81 +51,25 @@ float sensorTarget[8] = {LARGE, MEDIUM, SMALL, CENTER, -CENTER, -SMALL, -MEDIUM,
 float lapFlag = false;
 int lapCounter = 0;
 
-
+ISR(INT5_vect) {
+	if(!driveFlag) {	
+		status = "Driving";
+		updateScreen = true;
+		driveFlag = true;
+		sprintf(time,"%d", sec);
+		sprintf(cyc,"%d", 0);
+	}
+}
 
 void UpdateSensors(void) {
-
-	if (PINA < 0xff) {
-
-			if (!(PINA & _BV(PA7))) {
-				sensors[0]+=1.0f;
-			}
-			else {
-				sensors[0]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA6))) { 
-				sensors[1]+=1.0f;
-			}
-			else {
-				sensors[1]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA5))) { 
-				sensors[2]+=1.0f;
-			}
-			else {
-				sensors[2]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA4))) {
-				sensors[3]+=1.0f;
-			}
-			else {
-				sensors[3]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA3))) { 
-				sensors[4]+=1.0f;
-			}
-			else {
-				sensors[4]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA2))) {
-				sensors[5]+=1.0f;
-			}
-			else {
-				sensors[5]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA1))) { 
-				sensors[6]+=1.0f;
-			}
-			else {
-				sensors[6]-=1.0f;
-			}
-
-			if (!(PINA & _BV(PA0))) { 
-				sensors[7]+=1.0f;
-			}
-			else {
-				sensors[7]-=1.0f;
-			}
-
-		}
-
-		int i = 0;
-		for(;i<8; i++) {
-			if(sensors[i] > 1.0f) {
-				sensors[i] = 1.0f;
-			}
-			else if(sensors[i] < 0.0f) {
-				sensors[i] = 0.0f;
-			}
-		}
-
-
+	sensors[0]= ! (PINA & _BV(PA7));
+	sensors[1]= ! (PINA & _BV(PA6));
+	sensors[2]= ! (PINA & _BV(PA5));
+	sensors[3]= ! (PINA & _BV(PA4));
+	sensors[4]= ! (PINA & _BV(PA3));
+	sensors[5]= ! (PINA & _BV(PA2));
+	sensors[6]= ! (PINA & _BV(PA1));
+	sensors[7]= ! (PINA & _BV(PA0));
 }
 
 float GetFilteredSensorValue(void) {
@@ -150,11 +82,11 @@ float GetFilteredSensorValue(void) {
 		if (sensors[i] == 1.0)
 			 counter++;
 	}
-	if (counter > 5) {
+	if (counter > 3) {
 		if (!lapFlag) {
 			lapCounter++;
 			sprintf(lap,"%d",lapCounter);
-			updateScreen = true;
+			//updateScreen = true;
 		}
 		lapFlag = true;
 		previous = 0.0;
@@ -179,8 +111,6 @@ float GetFilteredSensorValue(void) {
 		value = -0.0;
 	else	
 		value = previous; 
-
-
 	previous = value;
 	return value;
 }
@@ -191,11 +121,12 @@ float absFloat(float value) {
 	return value;
 }
 
+
 int main(void)
 {  
 	int i = 0;
 	for(; i<8; i++) {
-			sensors[i] = 0;
+		sensors[i] = 0;
 	}
 
 	//Needs to be before sei.. don't ask why..
@@ -207,17 +138,18 @@ int main(void)
 	SETUP_SENSOR_IO();
 
 	CLEAR_BIT(DDRE, PE5);//Input pin 
+	
 	ENABLE_EXTERNAL_INTERRUPT(INT5);//External Interrupt Request 5 INT5 enabled*/
 
 	InitServo(0);
 	InitMotor();	
-
-
+	SetupTachometer();
 	float currentDirection = 0;
 	float targetDirection = 0;
 
 	bool terminated = false;
-
+	currentSpeed = 10;
+	tachoPulsesPerSecond = 0;
 	for (;;)
 	{	
 
@@ -230,10 +162,16 @@ int main(void)
 			//sei();
 			WriteText("Lap:",3);
 			WriteText_StartingFrom(lap,4,7);
+
+			WriteText("Ticker:",5);
+			WriteText_StartingFrom(time,6,7);
+
+			WriteText("cycle:",7);
+			WriteText_StartingFrom(cyc,8,7);
+			
 		}
 
-
-		if( ! terminated ) {		
+		if(!terminated) {		
 
 			float direction = GetFilteredSensorValue();
 
@@ -241,13 +179,14 @@ int main(void)
 				SetMotorSpeed(0);
 				MoveServo(0);
 
-				terminated = true;
+				terminated = false;
 				status = "Terminated";
 				updateScreen = true;
+				driveFlag = false;
+				lapCounter = 0;
 				continue;
 
 			}
-
 		
 			targetDirection = direction * 45.0;
 
@@ -261,7 +200,22 @@ int main(void)
 			MoveServo(currentDirection);
 			
 			if (driveFlag) {
-				SetMotorSpeed(50 + (1.0 - absFloat(direction)) * 20);	
+				float desiredPulsePerSecond = 9 + (1.0 - absFloat(direction)) * 5;
+				float difference = desiredPulsePerSecond - tachoPulsesPerSecond;
+				float coefficient = 0.015;
+				if (difference < 0) {
+					coefficient = -0.015;
+				}
+				currentSpeed += 20 * coefficient;
+
+				if(currentSpeed>80) {
+					currentSpeed = 80;
+				}
+				if(currentSpeed<0) {
+					currentSpeed = 0;
+				}
+
+				SetMotorSpeed(currentSpeed);	
 			}
 		}
 	}
