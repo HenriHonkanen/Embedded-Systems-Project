@@ -6,6 +6,11 @@ We used git to keep track of the versions and used Github as the remote reposito
 
 Url to the Github repository: https://github.com/HenriHonkanen/Embedded-Systems-Project
 
+## To Build and run ##
+
+`make
+make flash`
+
 # Introduction #
 
 We decided to create one module per electronical component.
