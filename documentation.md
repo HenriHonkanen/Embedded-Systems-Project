@@ -1,4 +1,15 @@
-# General Introduction #
+# General information #
+
+We generally wrote the code using pair programming. The code was reviewed by everyone so that the team understands the whole code and not just the part each of us has done.
+
+We used git to keep track of the versions and used Github as the remote repository.
+
+Url to the Github repository: https://github.com/HenriHonkanen/Embedded-Systems-Project
+
+# Introduction #
+
+We decided to create one module per electronical component.
+Here we described how we implemented them.
 
 ## Servo ##
 *Mode of operation:* PWM
@@ -39,7 +50,7 @@ Interface function description skipped because this is not a compulsory part of 
 
 # Driving logic #
 
-Our main driving logic is written inside an infinite loop. We break the loop when the car has driven 3 laps. 
+Our main driving logic is written inside an infinite loop.
 
 ## Start ##
 
