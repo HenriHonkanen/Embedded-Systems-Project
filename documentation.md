@@ -22,10 +22,6 @@
 *	SetMotorSpeed(int percentage): Set up the motor speed with the percentage of 1/3 (for safety) of the maximum speed of the motor as an argument
 
 ## Tachometer ##
-*Mode of operation:* ?
-
-*Frequency:* not important
-
 *Interface functions:*
 
 *	SetUpTachometer(void): set up the tachometer with an external timer i.e. timer5, and add set up timer3 for counting purpose.
