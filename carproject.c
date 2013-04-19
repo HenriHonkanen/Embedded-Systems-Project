@@ -82,6 +82,7 @@ float GetFilteredSensorValue(void) {
 		if (sensors[i] == 1.0)
 			 counter++;
 	}
+	// We consider to have passed the starting line if more than 3 sensors were hit
 	if (counter > 3) {
 		if (!lapFlag) {
 			lapCounter++;
@@ -93,6 +94,8 @@ float GetFilteredSensorValue(void) {
 		return 0.0;
 	}
 	lapFlag = false;
+
+	//Calculate a percentage of the direction based on which sensor was hit
 	if (sensors[0])
 		value = 1.0;
 	else if (sensors[7])
@@ -120,7 +123,6 @@ float absFloat(float value) {
 		return -value;
 	return value;
 }
-
 
 int main(void)
 {  
@@ -157,9 +159,7 @@ int main(void)
 			updateScreen = false;
 			ClearScreen();
 			WriteText("State:",1);
-			//cli();	//Incase we are writing when button is pressed.
-				WriteText_StartingFrom(status,2,7);
-			//sei();
+			WriteText_StartingFrom(status,2,7);
 			WriteText("Lap:",3);
 			WriteText_StartingFrom(lap,4,7);
 
@@ -171,6 +171,7 @@ int main(void)
 			
 		}
 
+		//Terminated when lapCounter > 3
 		if(!terminated) {		
 
 			float direction = GetFilteredSensorValue();
@@ -189,7 +190,6 @@ int main(void)
 			}
 		
 			targetDirection = direction * 45.0;
-
 			if (absFloat(targetDirection) >= absFloat(currentDirection)) {
 				currentDirection = targetDirection;				
 			}
@@ -200,6 +200,7 @@ int main(void)
 			MoveServo(currentDirection);
 			
 			if (driveFlag) {
+				//Calculate new motor speed and accelerate/deccelerate
 				float desiredPulsePerSecond = 9 + (1.0 - absFloat(direction)) * 5;
 				float difference = desiredPulsePerSecond - tachoPulsesPerSecond;
 				float coefficient = 0.015;
