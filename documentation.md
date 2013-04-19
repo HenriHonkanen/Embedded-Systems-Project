@@ -8,8 +8,10 @@ Url to the Github repository: https://github.com/HenriHonkanen/Embedded-Systems-
 
 ## To Build and run ##
 
-`make
-make flash`
+*Build:*  `make`
+
+*Run:* `make flash`
+
 
 # Introduction #
 
