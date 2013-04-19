@@ -27,7 +27,7 @@
 *	SetUpTachometer(void): set up the tachometer with an external timer i.e. timer5, and add set up timer3 for counting purpose.
 *	GetTachometerTimerInSeconds(void): return the timer3 elapsed time in seconds.
 
-Tachometer is functioning as such that each time the microcontroller receives a pulse of the motor's turn it will cause a compare match interrupt. In this interrupt, we get the timer3 elapsed time in second and calculate the motor's frequency. The timer3 is then restarted.
+Tachometer is functioning as such that each time the microcontroller receives a pulse of the motor's turn it will cause a compare match interrupt. In the interrupt handler, we get the timer3 elapsed time in second and calculate the motor's frequency. The timer3 is then restarted.
 
 
 ## LCD ##

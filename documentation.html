@@ -36,7 +36,7 @@
 <li>GetTachometerTimerInSeconds(void): return the timer3 elapsed time in seconds.</li>
 </ul>
 
-<p>Tachometer is functioning as such that each time the microcontroller receives a pulse of the motor&#8217;s turn it will cause a compare match interrupt. In this interrupt, we get the timer3 elapsed time in second and calculate the motor&#8217;s frequency. The timer3 is then restarted.</p>
+<p>Tachometer is functioning as such that each time the microcontroller receives a pulse of the motor&#8217;s turn it will cause a compare match interrupt. In the interrupt handler, we get the timer3 elapsed time in second and calculate the motor&#8217;s frequency. The timer3 is then restarted.</p>
 
 <h2 id="lcd">LCD</h2>
 
