@@ -92,7 +92,7 @@ clean:
 carproject:	carproject.rom #for AVRStudio: test_usart.cof
 		$(DONE)
 
-carproject.elf:	carproject.o servo.o util.o motor.o LCD.o
+carproject.elf:	carproject.o servo.o util.o motor.o LCD.o tachometer.o
 
 carproject.o:	carproject.c
 
@@ -103,6 +103,8 @@ motor.o: motor.c util.o
 LCD.o: LCD.c util.o
 
 util.o: util.c
+
+tachometer.o: tachometer.c
 
 
 flash:

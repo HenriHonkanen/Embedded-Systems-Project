@@ -31,6 +31,8 @@
 #define WAIT_UNTIL_NO_PULSE_IS_BEING_EMITTED(timer_number) \
 		while( TCNT##timer_number >= OCR##timer_number##A) {;}
 
+#define F_CPU 16000000
+
 long map(long v, long a, long b, long x,long y);
 
 #endif
